@@ -8,6 +8,18 @@ Team '군대런' - 2018115540 김동환, 2018112749 전현승
 
 ## Brief Schedule
 
-## Role of each member
 
-asdf
+## Role of each member
+| Team member | Role |  
+| --- | --- |  
+| 김동환 | 코어 기능 개발, 시스템 통합, 테스트, 발표 준비 |  
+| 전현승 | 코어 기능 개발, 시스템 통합, 테스트, 발표 준비 |  
+
+## Project Structure
+/src - 소스 파일  
+/docs - 회의록 등 문서  
+/resource - 리소스 파일  
+
+## Programming Style
+* Indentation style - K&R
+* Variable names - ?
