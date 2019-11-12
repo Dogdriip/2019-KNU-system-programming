@@ -9,3 +9,5 @@ Team '군대런' - 2018115540 김동환, 2018112749 전현승
 ## Brief Schedule
 
 ## Role of each member
+
+asdf
