@@ -49,6 +49,7 @@ void tty_mode(int how){
 void init_game(){
 	tty_mode(0);
 	set_noecho_mode();
+	srand((long)time(NULL));
 
 	curs_set(0);
 }

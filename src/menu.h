@@ -4,7 +4,9 @@
 #include <termio.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include <curses.h>
+#include <time.h>
 
 #define MENU_INTERVAL 5 // 메뉴 테두리가 스크린 가장자리로부터 얼마나 떨어지는가
 #define MENU_TITLE_Y 6 // 제목의 Y좌표
