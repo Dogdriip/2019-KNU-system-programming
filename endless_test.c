@@ -26,7 +26,7 @@ int main() {
 
     refresh();
 
-    char *input_str;
+    char input_str[40];
     int input_len = 0;
     int i;
 
