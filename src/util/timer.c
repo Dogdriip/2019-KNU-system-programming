@@ -1,11 +1,7 @@
 #include <sys/time.h>
 #include <signal.h>
 #include "timer.h"
-
-// 1000ms == 1s
-// 500ms == 0.5s
-
-
+#include "game.h"
 
 // 매 INTERVAL마다 호출됨
 void trigger() {
@@ -13,12 +9,26 @@ void trigger() {
     elapsed_time += INTERVAL;
     word_drop_c -= INTERVAL;
     new_word_c -= INTERVAL;
-    score_update_c -= INTERVAL;
 
     // 각각 trigger 조건 확인
     if (word_drop_c == 0) {
         // word drop 필요
-        // 단어 맨 밑에 닿는 건 word drop에서 체크해야 함
+        // 단어 맨 밑에 닿으면 LIFE 감소 필요. LIFE 0 되면 게임오버. 어디서 처리할 것인가?
+        // 나중에 파일 하나 더 만들던지 하자
+        /*
+        word_node* curr;
+        for (curr = curr_list; curr; curr = curr->link) {
+            curr->y += 1;
+            if (curr->y == (윈도우 ROW 사이즈)) {
+                // 맨 밑에 닿은 단어 노드 삭제
+                word_node* tmp = curr->link;
+                free(curr);
+                curr = tmp;
+            }
+        }
+        */
+
+        
 
         // word drop counter 초기값으로 다시 두기
         word_drop_c = WORD_DROP_C_INIT;
@@ -26,16 +36,11 @@ void trigger() {
 
     if (new_word_c == 0) {
         // 새 단어 추가 필요
+        word_node* node = get_node();
+        insert_node(curr_list, node);
 
         // new word counter 초기값으로 다시 두기
         new_word_c = NEW_WORD_C_INIT;
-    }
-
-    if (score_update_c == 0) {
-        // 점수 갱신 필요
-        update_score();
-        // 초기값으로 다시 두기
-        score_update_c = SCORE_UPDATE_C_INIT;
     }
 }
 
@@ -60,7 +65,6 @@ void init_timer() {
     elapsed_time = 0;
     word_drop_c = WORD_DROP_C_INIT;
     new_word_c = NEW_WORD_C_INIT;
-    score_update_c = SCORE_UPDATE_C_INIT;
 
     set_ticker(INTERVAL);
     signal(SIGALRM, trigger);
