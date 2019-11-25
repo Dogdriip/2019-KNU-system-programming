@@ -9,9 +9,15 @@ int main(){
 	init_game();
 	draw_menu();
 
+	mvprintw(MENU_SELECT_EXIT_Y + 1, COLS / 2, "%d %d", LINES, COLS); 
+
 	while(key != 3){
 		// key) 1: Single, 2: Multi, 3: Exit
 		key = select_menu();
+
+		if (key == 1){
+			//single_select_menu();
+		}
 	}
 
 	end_game();
