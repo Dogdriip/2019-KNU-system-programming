@@ -4,34 +4,26 @@ int main(){
 	int key = 0;
 	initscr();
 	clear();
-	keypad(stdscr, TRUE);
 
 	init_game();
 	draw_menu();
-
-	mvprintw(MENU_SELECT_EXIT_Y + 1, COLS / 2, "%d %d", LINES, COLS); 
 
 	while(key != 3){
 		// key) 1: Single, 2: Multi, 3: Exit
 		key = select_menu();
 
 		if (key == 1){
-			//single_select_menu();
+			start_single_menu();
+
+			draw_menu();
+		}
+		else if (key == 2){
+		
 		}
 	}
 
 	end_game();
 	endwin();
-}
-
-// ECHO를 끔
-void set_noecho_mode(){
-	struct termios ttystate;
-
-	tcgetattr(0, &ttystate);
-	ttystate.c_lflag &= ~ECHO;
-
-	tcsetattr(0, TCSANOW,  &ttystate);
 }
 
 // 터미널 설정을 저장해두고, 복구함
@@ -54,14 +46,16 @@ void tty_mode(int how){
 // program 시작시 초기화
 void init_game(){
 	tty_mode(0);
-	set_noecho_mode();
+	noecho();
 	srand((long)time(NULL));
+	keypad(stdscr, TRUE);
 
 	curs_set(0);
 }
 
 // program 종료시 초기화
 void end_game(){
+	echo();
 	tty_mode(1);
 }
 
@@ -94,8 +88,11 @@ int select_menu(){
 	}
 }
 
-// 메인 메뉴를 그림
+// 이전에 strscr에 그려진 모든 것을 지우고, 메인 메뉴를 그림
 void draw_menu(){
+	clear();
+
+	// 메뉴 테두리 구현...
 	for(int i = MENU_INTERVAL; i < COLS - MENU_INTERVAL; i++)
 		mvaddch(MENU_INTERVAL, i, '*');
 	for(int i = MENU_INTERVAL; i < COLS - MENU_INTERVAL; i++)
