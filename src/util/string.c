@@ -7,7 +7,7 @@ void string_init(){
 	char *ptr = NULL; // 임시 포인터 변수
 	FILE *fp = 0;
 
-	if (flag_file_to_array != 0)
+	if (flag_complete_init != 0)
 		return;
 
 	// 리소스 폴더의 string.txt의 경로를 얻는 코드

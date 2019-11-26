@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <termio.h>
 #include <unistd.h>
-#include "../menu.h"
+#include "../main_menu.h"
 
 #define SINGLE_MENU_ENDLESS_Y 19
 #define SINGLE_MENU_TIMEATTACK_Y 23

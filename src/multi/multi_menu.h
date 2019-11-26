@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <termio.h>
 #include <unistd.h>
-#include "../menu.h"
+#include "../main_menu.h"
 
 #define MULTI_MENU_MATCH_Y 19
 #define MULTI_MENU_BACK_Y 27

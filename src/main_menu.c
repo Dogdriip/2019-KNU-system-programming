@@ -1,30 +1,27 @@
-#include "menu.h"
+#include "main_menu.h"
 
 int main(){
 	int key = 0;
 	initscr();
 	clear();
 
-	init_game();
-	draw_menu();
+	init_program();
+	draw_main_menu();
 
 	while(key != 3){
 		// key) 1: Single, 2: Multi, 3: Exit
-		key = select_menu();
+		key = select_main_menu();
 
 		if (key == 1){
 			start_single_menu();
-
-			draw_menu();
 		}
 		else if (key == 2){
 			start_multi_menu();
-
-			draw_menu();
 		}
+		draw_main_menu();
 	}
 
-	end_game();
+	end_program();
 	endwin();
 }
 
@@ -46,23 +43,25 @@ void tty_mode(int how){
 }
 
 // program 시작시 초기화
-void init_game(){
+void init_program(){
 	tty_mode(0);
 	noecho();
 	srand((long)time(NULL));
 	keypad(stdscr, TRUE);
 
+	string_init();
+
 	curs_set(0);
 }
 
 // program 종료시 초기화
-void end_game(){
+void end_program(){
 	echo();
 	tty_mode(1);
 }
 
 // 방향키를 통해 메뉴를 선택할 수 있도록 함.
-int select_menu(){
+int select_main_menu(){
 	int key = 0; // 누른 키
 	int pos = 0; // 현재 '->'커서 위치. 범위는 0,1,2.  0은 싱글, 1은 멀티, 2는 Quit. return할 때 1 더해서 리턴
 	int x[3] = {(COLS - strlen("1. Single Game")) / 2, (COLS - strlen("2. Multi Game")) / 2, (COLS - strlen("3. Exit")) / 2};
@@ -91,7 +90,7 @@ int select_menu(){
 }
 
 // 이전에 strscr에 그려진 모든 것을 지우고, 메인 메뉴를 그림
-void draw_menu(){
+void draw_main_menu(){
 	clear();
 
 	// 메뉴 테두리 구현...
