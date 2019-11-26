@@ -27,6 +27,7 @@ void update_info_win(int life, int score) {
 
 
 
+
 ////////////////////////////////////////////////////////
 // 테스트를 위한 파일
 // timer.c에 있는 기능 그대로 가져옴
@@ -41,6 +42,13 @@ int elapsed_time;
 int word_drop_c;
 // int new_word_c;
 
+typedef struct node {
+    char* word;  // word content
+    int y, x;  // pos (row, col)
+    struct node* link;
+} node;
+node* curr_list;
+
 
 void trigger() {
     // 매 trigger마다 변수 갱신
@@ -49,7 +57,7 @@ void trigger() {
     // new_word_c -= INTERVAL;
 
     // info_win에 정보 갱신 (LIFE, SCORE)
-    update_info_win(100, elapsed_time);
+    update_info_win(100, elapsed_time);  // LIFE는 나중에 매크로로 뺄 것
 
     // 각 window를 refresh
     wrefresh(game_win);
@@ -91,6 +99,9 @@ void init_timer() {
     signal(SIGALRM, trigger);
 }
 
+void init_game() {
+    curr_list = NULL;
+}
 
 
 
@@ -102,8 +113,16 @@ void init_timer() {
 
 
 
-
-
+void input_handler(char str[]) {
+    node* curr;
+    for (curr = curr_list; curr; curr = curr->link) {
+        if (!strcmp(curr->word, str)) {  // 단어 일치?
+            printf("found\n");
+            return;
+        }
+    }
+    printf("not found\n");
+}
 
 
 
@@ -136,7 +155,7 @@ int main() {
     int input_len = 0;
     int i;
 
-
+    init_game();
     init_timer();
 
 
@@ -152,6 +171,23 @@ int main() {
             wmove(typing_win, 2, i);
             wprintw(typing_win, " ");
         }
+
+        // input 받은 단어가 curr_list에 있는지 쭉 돌면서 체크 후,
+        // 있으면 노드 삭제하고, 그 위치에서 단어 길이만큼 공백으로 채우고 (노드에 위치정보 있음)
+        // 없으면 걍 iterator 끝까지 돌린 것
+        // 이후 종료하기 전에 game_win refresh해주고 종료
+
+        // 그럼 game_win 화면 갱신은 언제 일어나는가?
+
+        // 입력 받을때 curr_list iterate하는 함수에서 game_win refresh해 주는 거랑
+        // 새 단어 생길 때, word drop할 떄 말고는 game_win refresh 없지 않나?
+
+        input_handler(input_str);
+
+
+
+
+        
     }
     
     wclear(game_win);
