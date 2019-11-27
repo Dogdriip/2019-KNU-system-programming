@@ -1,32 +1,258 @@
-// 헤더랑 main은 나중에 빼고 함수로 리팩토링하면 된다
+#include "single.h"
+#include "endless.h"
+#include "../util/string.h"
 
-#include <stdio.h>
-#include <signal.h>
-#include "../menu.h"
+//////////////////////////////////////////////////////////////
+// linked list 관련
+node* list_header;  // 현재 게임판에 나와있는 단어들 리스트
 
+node* get_node(char word[], int y, int x) {
+    node* tmp = (node*)malloc(sizeof(*tmp));
+    
+    strcpy(tmp->word, word);
+    tmp->y = y; tmp->x = x; tmp->llink = NULL; tmp->rlink = NULL;
+
+    return tmp;
+}
+
+void insert_node(node* destnode, node* newnode) {
+	newnode->llink = destnode;
+	newnode->rlink = destnode->rlink;
+	destnode->rlink->llink = newnode;
+	destnode->rlink = newnode;
+}
+
+void delete_node(node* destnode, node* deleted) {
+	if (destnode == deleted) {
+		printf("Deletion of header node not permitted.\n");
+	} else {
+		deleted->llink->rlink = deleted->rlink;
+		deleted->rlink->llink = deleted->llink;
+		free(deleted);
+	}
+}
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// window 관련
 WINDOW* game_win;  // 좌상단 가장 큰 게임 메인창
 WINDOW* info_win;  // 우상단 현재 게임 정보 출력창
 WINDOW* typing_win;  // 하단 유저 입력창
 
-int main() {
-    init_game();  // 단어 리스트 초기화
-    init_timer();  // 타이머 설정, 시그널 핸들러 설치, 경과 시간 초기화
-
-    game_win = newwin(LINES - (MENU_INTERVAL * 2) - 3, (COLS - (MENU_INTERVAL * 2)) * 2 / 3, MENU_INTERVAL, MENU_INTERVAL);
+void prepare_windows() {
+    game_win = newwin(GAME_WIN_HEIGHT, GAME_WIN_WIDTH, GAME_WIN_Y, GAME_WIN_X);
     box(game_win, '*', '*');
-    wrefresh(game_win);
 
-    info_win = newwin(LINES - (MENU_INTERVAL * 2) - 3, (COLS - (MENU_INTERVAL * 2)) / 3, MENU_INTERVAL, MENU_INTERVAL + (COLS - (MENU_INTERVAL * 2)) * 2 / 3);
+    info_win = newwin(INFO_WIN_HEIGHT, INFO_WIN_WIDTH, INFO_WIN_Y, INFO_WIN_X);
     box(info_win, '*', '*');
-    wrefresh(info_win);
 
-    typing_win = newwin(3, COLS - (MENU_INTERVAL * 2), LINES - 8, MENU_INTERVAL);
+    typing_win = newwin(TYPING_WIN_HEIGHT, TYPING_WIN_WIDTH, TYPING_WIN_Y, TYPING_WIN_X);
     box(typing_win, '*', '*');
-    wrefresh(typing_win);
+}
 
-    /*while (1) {
+void update_info_win(int life, int score) {
+    wmove(info_win, 2, 2);
+    wprintw(info_win, "LIFE: %d", life);
+    wmove(info_win, 3, 2);
+    wprintw(info_win, "SCORE: %d", score);
+}
+
+void update_game_win(node* header) {
+    node* curr;
+
+    // 아예 game_win을 clear시켜버리고, 각 단어 위치에다가 새로 그린다
+    wclear(game_win);
+    box(game_win, '*', '*');
+    
+    for (curr = header->rlink; curr != header; curr = curr->rlink) {
+        wmove(game_win, curr->y, curr->x);
+        wprintw(game_win, "%s", curr->word);   
+    }
+}
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// 게임플레이
+int elapsed_time;
+int remain_life;
+int word_drop_c;
+int new_word_c;
+
+void gameover() {
+    // TODO:
+}
+
+void drop_word(node* header) {
+    node* curr;
+    node* temp;
+    for (curr = header->rlink; curr != header; curr = curr->rlink) {
+        // word drop 처리 
+        curr->y += 1;
         
-    }*/
+        // game_win 맨 밑에 닿았다면?
+        if (curr->y >= GAME_WIN_Y + GAME_WIN_HEIGHT) {
+            // 그 단어 삭제 후 화면 갱신
+            temp = curr->llink;
+            delete_node(header, curr);
+            curr = temp;
 
-    return 0;
+            update_game_win(header);
+            
+            // life 1 감소
+            remain_life -= 1;
+            if (remain_life <= 0) {
+                gameover();
+            }
+        }
+    }
+}
+
+void add_new_word(node* header) {
+    node* tmp;
+    char word[MAX_STRING_LENGTH + 1];
+
+    strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
+
+    tmp = get_node(word, 2, (rand() % GAME_WIN_WIDTH) + GAME_WIN_X);
+    insert_node(list_header->llink, tmp);
+}
+
+void input_handler(node* header, char str[]) {
+    node* curr;
+    node* temp;
+    for (curr = header->rlink; curr != header; curr = curr->rlink) {
+        if (!strcmp(curr->word, str)) { 
+            // 단어 일치
+            // printf("found\n");
+
+            // 그 노드 삭제
+            temp = curr->llink;
+            delete_node(header, curr);
+            curr = temp;
+
+            // 삭제 후 화면 갱신 한번 필요
+            update_game_win(header);
+
+            return;
+        }
+    }
+
+    // 일치하는 단어 없음
+    // 그대로 아무것도 안 하고 종료
+    // printf("not found\n");
+}
+
+void trigger() {
+    // 매 trigger마다 변수 갱신
+    elapsed_time += CLOCK_INTERVAL;
+    word_drop_c -= CLOCK_INTERVAL;
+    new_word_c -= CLOCK_INTERVAL;
+
+    // info_win에 정보 갱신 (LIFE, SCORE)
+    update_info_win(remain_life, elapsed_time);
+
+    // 각 window를 refresh
+    wrefresh(game_win);
+    wrefresh(info_win);
+    wrefresh(typing_win);
+    // typing window는 refresh하면 안 되는 것 아닌가?
+
+    if (word_drop_c == 0) {
+        // word_drop_c마다 word drop 후 game_win update 필요
+        drop_word(list_header);
+        update_game_win(list_header);
+
+        word_drop_c = WORD_DROP_C_INIT;
+    }
+
+    if (new_word_c == 0) {
+        // 새 단어 추가 필요
+        add_new_word(list_header);
+        update_game_win(list_header);
+
+        new_word_c = NEW_WORD_C_INIT;
+    }
+}
+
+void init_timer() {
+    elapsed_time = 0;
+    word_drop_c = WORD_DROP_C_INIT;
+    new_word_c = NEW_WORD_C_INIT;
+
+    set_ticker(CLOCK_INTERVAL);
+    signal(SIGALRM, trigger);
+}
+
+void init_game() {
+    remain_life = LIFE_INIT;
+
+    list_header = (node*)malloc(sizeof(*list_header));
+    list_header->llink = list_header->rlink = list_header;
+
+    ///////////////////// DEBUG!
+    /*
+    node* tmp;
+
+    tmp = get_node("apple", 2, 50);
+    insert_node(list_header->llink, tmp);
+
+    tmp = get_node("banana", 4, 20);
+    insert_node(list_header->llink, tmp);
+
+    tmp = get_node("cat", 6, 30);
+    insert_node(list_header->llink, tmp);
+
+    tmp = get_node("dog", 8, 70);
+    insert_node(list_header->llink, tmp);
+    */
+    ///////////////////// DEBUG!
+
+}
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// main game logic
+void single_endless_game() {
+    char input_str[40];
+    int input_len = 0;
+    int i;
+
+
+    initscr(); clear(); refresh();
+
+    prepare_windows();
+
+    init_game();
+    init_timer();
+
+    // 시작하자마자 trigger 한번 실행?
+    // trigger();
+
+    while (strcmp(input_str, "quit")) {
+        // input 받자
+        wmove(typing_win, 2, 2);
+        wgetstr(typing_win, input_str);
+        input_len = strlen(input_str);
+
+        // input 받았으면 공백으로 채우자
+        for (i = 2; i < input_len + 2; i++) {
+            wmove(typing_win, 2, i);
+            wprintw(typing_win, " ");
+        }
+
+        // 입력 받을때 curr_list iterate하는 함수에서 game_win refresh해 주는 거랑
+        // 새 단어 생길 때, word drop할 떄 말고는 game_win refresh 없지 않나?
+
+        input_handler(list_header, input_str);
+    }
+    
+    wclear(game_win);
+    wclear(info_win);
+    wclear(typing_win);
+
+    delwin(game_win);
+    delwin(info_win);
+    delwin(typing_win);
+
+    endwin();
 }

@@ -10,8 +10,11 @@ void start_single_menu(){
 		key = select_single_menu();
 		
 		if (key == 1){
+			// endless
+			single_endless_game();
 		}
 		else if (key == 2){
+			// time attack
 		}
 		else{
 			return;
