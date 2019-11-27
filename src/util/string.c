@@ -1,9 +1,27 @@
 #include "string.h"
 
+char string[MAX_STRING_LENGTH + 1][MAX_STRING_COUNT][MAX_STRING_LENGTH+1];
+int string_count[MAX_STRING_LENGTH + 1]; // 각 길이당 몇개의 문장을 가지고 있는지 저장하는 배열
+
+int main(){
+	string_init();
+
+	for(int i = 2; i <= 12; i++)
+		printf("%d\n", string_count[i]);
+
+	printf("%s\n",get_word(2, 12));
+
+	return 0;
+}
+	
+int get_count(int i){
+	return string_count[i];
+}
+
 void string_init(){
 	static int flag_complete_init = 0; // 이미 init을 호출한 적이 있는지 체크
 	char file_path[250] = {0}; // 파일의 경로가 들어갈 배열
-	char strbuf[MAX_STRING_LENGTH + 1] = {0}; // 파일로부터 단어를 읽어올 버퍼
+	char strbuf[MAX_STRING_LENGTH + 2] = ""; // 파일로부터 단어를 읽어올 버퍼
 	char *ptr = NULL; // 임시 포인터 변수
 	FILE *fp = 0;
 
@@ -25,18 +43,17 @@ void string_init(){
 	fp = fopen(file_path, "r");	
 
 	// 게임에서 사용할 문장들을 가져오는 코드
-	fgets(strbuf, MAX_STRING_LENGTH + 1, fp);
+	fscanf(fp, "%s", strbuf);
 	while(!feof(fp)){
 		int length = strlen(strbuf);
+		printf("%s %d\n",strbuf, length);
 		
-		if (MIN_STRING_LENGTH < length && length < MAX_STRING_LENGTH \
-				&& string_count[length] < MAX_STRING_COUNT){
-			string[length][string_count[length]] = (char*)malloc(sizeof(char) * (length + 1));
+		if (MIN_STRING_LENGTH <= length && length <= MAX_STRING_LENGTH && string_count[length] < MAX_STRING_COUNT){
 			strcpy(string[length][string_count[length]], strbuf);
 
 			string_count[length]++;
 		}
-		fgets(strbuf, MAX_STRING_LENGTH + 1, fp);
+		fscanf(fp, "%s", strbuf);
 	}
 	fclose(fp);
 
