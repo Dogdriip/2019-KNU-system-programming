@@ -13,7 +13,7 @@ multi_menu.o: multi/multi_menu.h multi/multi_menu.c
 connection.o: util/connection.h util/connection.c
 	gcc -c -o connection.o util/connection.c
 
-string.o: util/string.c util/strings.h
+string.o: util/string.c util/string.h
 	gcc -c -o string.o util/string.c
 
 clean:
