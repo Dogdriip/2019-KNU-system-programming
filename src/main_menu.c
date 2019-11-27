@@ -12,6 +12,9 @@ int main(){
 		// key) 1: Single, 2: Multi, 3: Exit
 		key = select_main_menu();
 
+		mvprintw(10,10, "%s", get_word(2,12));
+		refresh();
+
 		if (key == 1){
 			start_single_menu();
 		}
