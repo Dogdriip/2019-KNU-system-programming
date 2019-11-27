@@ -11,6 +11,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include "../util/string.h"
 
 // 윈도우 3개 관련 상수
 #define GAME_SCR_PADDING 5
