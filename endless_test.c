@@ -3,8 +3,66 @@
 #include <curses.h>
 #include <string.h>
 #include <sys/time.h>
+#include <stdlib.h>
 
-#define MENU_INTERVAL 5
+#define GAME_SCR_PADDING 5
+
+#define TYPING_WIN_HEIGHT 5
+#define TYPING_WIN_WIDTH COLS - (GAME_SCR_PADDING * 2)
+#define TYPING_WIN_Y LINES - (GAME_SCR_PADDING * 2)
+#define TYPING_WIN_X GAME_SCR_PADDING
+
+#define GAME_WIN_HEIGHT LINES - (GAME_SCR_PADDING * 2) - TYPING_WIN_HEIGHT
+#define GAME_WIN_WIDTH (COLS - (GAME_SCR_PADDING * 2)) * 2 / 3
+#define GAME_WIN_Y GAME_SCR_PADDING
+#define GAME_WIN_X GAME_SCR_PADDING
+
+#define INFO_WIN_HEIGHT LINES - (GAME_SCR_PADDING * 2) - TYPING_WIN_HEIGHT
+#define INFO_WIN_WIDTH (COLS - (GAME_SCR_PADDING * 2)) / 3
+#define INFO_WIN_Y GAME_SCR_PADDING
+#define INFO_WIN_X GAME_SCR_PADDING + GAME_WIN_WIDTH
+
+
+/////////////////////////////////////////////////////////////// doubly linked list
+typedef struct node {
+    char word[40];  // word content
+    int y, x;  // pos (row, col)
+    struct node* llink;
+    struct node* rlink;
+} node;
+node* list_header;
+
+node* get_node(char word[], int y, int x) {
+    node* tmp = (node*)malloc(sizeof(*tmp));
+    
+    strcpy(tmp->word, word);
+    tmp->y = y; tmp->x = x; tmp->llink = NULL; tmp->rlink = NULL;
+
+    return tmp;
+}
+
+void insert_node(node* destnode, node* newnode) {
+	newnode->llink = destnode;
+	newnode->rlink = destnode->rlink;
+	destnode->rlink->llink = newnode;
+	destnode->rlink = newnode;
+}
+
+void delete_node(node* destnode, node* deleted) {
+	if (destnode == deleted) {
+		printf("Deletion of header node not permitted.\n");
+	} else {
+		deleted->llink->rlink = deleted->rlink;
+		deleted->rlink->llink = deleted->llink;
+		free(deleted);
+	}
+}
+/////////////////////////////////////////////////////////////// doubly linked list
+
+
+
+
+
 
 ////////////////////////////////////////////////////////
 // WINDOW들은 전역변수로 선언해야 한다
@@ -15,6 +73,16 @@ WINDOW* game_win;  // 좌상단 가장 큰 게임 메인창
 WINDOW* info_win;  // 우상단 현재 게임 정보 출력창
 WINDOW* typing_win;  // 하단 유저 입력창
 
+void prepare_windows() {
+    game_win = newwin(GAME_WIN_HEIGHT, GAME_WIN_WIDTH, GAME_WIN_Y, GAME_WIN_X);
+    box(game_win, '*', '*');
+
+    info_win = newwin(INFO_WIN_HEIGHT, INFO_WIN_WIDTH, INFO_WIN_Y, INFO_WIN_X);
+    box(info_win, '*', '*');
+
+    typing_win = newwin(TYPING_WIN_HEIGHT, TYPING_WIN_WIDTH, TYPING_WIN_Y, TYPING_WIN_X);
+    box(typing_win, '*', '*');
+}
 
 
 void update_info_win(int life, int score) {
@@ -24,7 +92,18 @@ void update_info_win(int life, int score) {
     wprintw(info_win, "SCORE: %d", score);
 }
 
+void update_game_win(node* header) {
+    node* curr;
 
+    // 아예 game_win을 clear시켜버리고, 각 단어 위치에다가 새로 그린다
+    wclear(game_win);
+    box(game_win, '*', '*');
+    
+    for (curr = header->rlink; curr != header; curr = curr->rlink) {
+        wmove(game_win, curr->y, curr->x);
+        wprintw(game_win, "%s", curr->word);   
+    }
+}
 
 
 
@@ -35,19 +114,37 @@ void update_info_win(int life, int score) {
 // 걍 여기서 완성해서 나중에 모듈로 분리하는 게 맞을 듯
 
 #define INTERVAL 100
-#define WORD_DROP_C_INIT 2000
+#define WORD_DROP_C_INIT 700
 // #define NEW_WORD_C_INIT 2000
 
 int elapsed_time;
 int word_drop_c;
 // int new_word_c;
 
-typedef struct node {
-    char* word;  // word content
-    int y, x;  // pos (row, col)
-    struct node* link;
-} node;
-node* curr_list;
+
+
+
+
+
+void drop_word(node* header) {
+    node* curr;
+    for (curr = header->rlink; curr != header; curr = curr->rlink) {
+        // word drop 처리 
+        curr->y += 1;
+        
+        // game_win 맨 밑에 닿았다면?
+        // TODO
+    }
+}
+
+
+
+
+
+
+
+
+
 
 
 void trigger() {
@@ -59,6 +156,8 @@ void trigger() {
     // info_win에 정보 갱신 (LIFE, SCORE)
     update_info_win(100, elapsed_time);  // LIFE는 나중에 매크로로 뺄 것
 
+
+
     // 각 window를 refresh
     wrefresh(game_win);
     wrefresh(info_win);
@@ -67,8 +166,9 @@ void trigger() {
 
 
     if (word_drop_c == 0) {
-        
-        
+        // word_drop_c마다 word drop 후 game_win update 필요
+        drop_word(list_header);
+        update_game_win(list_header);
 
 
         word_drop_c = WORD_DROP_C_INIT;
@@ -100,7 +200,27 @@ void init_timer() {
 }
 
 void init_game() {
-    curr_list = NULL;
+    list_header = (node*)malloc(sizeof(*list_header));
+    list_header->llink = list_header->rlink = list_header;
+
+    ///////////////////// DEBUG!
+    node* tmp;
+
+    tmp = get_node("apple", 2, 50);
+    insert_node(list_header->llink, tmp);
+
+    tmp = get_node("banana", 4, 20);
+    insert_node(list_header->llink, tmp);
+
+    tmp = get_node("cat", 6, 30);
+    insert_node(list_header->llink, tmp);
+
+    tmp = get_node("dog", 8, 70);
+    insert_node(list_header->llink, tmp);
+
+    
+
+    ///////////////////// DEBUG!
 }
 
 
@@ -113,14 +233,28 @@ void init_game() {
 
 
 
-void input_handler(char str[]) {
+void input_handler(node* header, char str[]) {
     node* curr;
-    for (curr = curr_list; curr; curr = curr->link) {
-        if (!strcmp(curr->word, str)) {  // 단어 일치?
+    node* temp;
+    for (curr = header->rlink; curr != header; curr = curr->rlink) {
+        if (!strcmp(curr->word, str)) { 
+            // 단어 일치
             printf("found\n");
+
+            // 그 노드 삭제
+            temp = curr->llink;
+            delete_node(header, curr);
+            curr = temp;
+
+            // 삭제 후 화면 갱신 한번 필요
+            update_game_win(header);
+
             return;
         }
     }
+
+    // 일치하는 단어 없음
+    // 그대로 아무것도 안 하고 종료
     printf("not found\n");
 }
 
@@ -135,21 +269,11 @@ void input_handler(char str[]) {
 
 
 int main() {
-
     initscr();
     clear();
     refresh();
 
-    game_win = newwin(LINES - (MENU_INTERVAL * 2) - 5, (COLS - (MENU_INTERVAL * 2)) * 2 / 3, MENU_INTERVAL, MENU_INTERVAL);
-    box(game_win, '*', '*');
-
-    info_win = newwin(LINES - (MENU_INTERVAL * 2) - 5, (COLS - (MENU_INTERVAL * 2)) / 3, MENU_INTERVAL, MENU_INTERVAL + (COLS - (MENU_INTERVAL * 2)) * 2 / 3);
-    box(info_win, '*', '*');
-
-    typing_win = newwin(5, COLS - (MENU_INTERVAL * 2), LINES - 10, MENU_INTERVAL);
-    box(typing_win, '*', '*');
-
-    refresh();
+    prepare_windows();
 
     char input_str[40];
     int input_len = 0;
@@ -158,6 +282,9 @@ int main() {
     init_game();
     init_timer();
 
+
+    // 시작하자마자 trigger 한번 실행?
+    trigger();
 
 
     while (strcmp(input_str, "quit")) {
@@ -182,7 +309,7 @@ int main() {
         // 입력 받을때 curr_list iterate하는 함수에서 game_win refresh해 주는 거랑
         // 새 단어 생길 때, word drop할 떄 말고는 game_win refresh 없지 않나?
 
-        input_handler(input_str);
+        input_handler(list_header, input_str);
 
 
 
