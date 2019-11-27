@@ -4,7 +4,7 @@
 #include <string.h>
 #include <curses.h>
 #include <fcntl.h>
-#include <termio.h>
+#include <termios.h>
 #include <unistd.h>
 #include "../main_menu.h"
 

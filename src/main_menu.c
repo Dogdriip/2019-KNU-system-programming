@@ -16,7 +16,7 @@ int main(){
 			start_single_menu();
 		}
 		else if (key == 2){
-			start_multi_menu();
+			//start_multi_menu();
 		}
 		draw_main_menu();
 	}

@@ -1,23 +1,4 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define PORTNUM_SCORE 8281
-#define PORTNUM_MULTI 8182
-#define SERVERADDRESS "155.230.52.58"
-
-int socket_id_score = 0;
-FILE* fp_score = NULL;
-
-void send_score(int score, char *name);
-int receive_score(int score[], char name[][4]);
-void open_score_server();
-void close_score_server();
+#include "connection.h"
 
 // test용
 int main(){
@@ -36,6 +17,48 @@ int main(){
 	return 0;
 }
 
+void* multi_connection(void* m){
+	struct sockaddr_in servadd;
+	struct hostent *hp;
+	char message[BUFSIZ];
+	int row, col;
+	int *flag = (int*)m; // 연결 제대로 되면 1, 안되면 -1
+
+	*flag = -1;
+
+	socket_id_multi = socket(AF_INET, SOCK_STREAM, 0);
+	if (socket_id_multi == -1){
+		printf("multi_connection socket open error\n");
+		exit(1);
+	}
+
+	bzero(&servadd, sizeof(servadd));
+	hp = gethostbyname(SERVERADDRESS);
+	if (hp == NULL){
+		printf("gethostbyname error");
+		exit(1);
+	}
+	bcopy(hp->h_addr, (struct sockaddr *)&servadd.sin_addr, hp->h_length);
+	servadd.sin_port = htons(PORTNUM_MULTI);
+	servadd.sin_family = AF_INET;
+
+	if (connect(socket_id_multi, (struct sockaddr *)&servadd, sizeof(servadd)) != 0){
+		printf("multi_connection connect 문제 발생");
+		exit(1);
+	}
+	
+	fp_multi = fdopen(socket_id_multi, "w+");
+
+	// 연결 성공하면, loading or match.
+	// loading은 다른 클라이언트를 기다리는 상태.
+	// match는 잡힌 상태
+	fscanf(fp_multi, "%s", message);
+	if (strcmp(message, "loading") == 0)
+		fscanf(fp_multi, "%s", message);
+
+	*flag = 1;
+}
+
 void open_score_server(){
 	struct sockaddr_in servadd; // the number to call
 	struct hostent *hp; // used to get number
@@ -51,7 +74,7 @@ void open_score_server(){
 	bzero(&servadd, sizeof(servadd));
 	hp = gethostbyname(SERVERADDRESS);
 	if (hp == NULL){
-		printf("gethostbtname error");
+		printf("gethostbyname error");
 		exit(1);
 	}
 	bcopy(hp->h_addr, (struct sockaddr *)&servadd.sin_addr, hp->h_length);

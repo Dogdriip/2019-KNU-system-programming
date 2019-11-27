@@ -1,14 +1,14 @@
 #pragma once
 #include <stdio.h>
 #include <fcntl.h>
-#include <termio.h>
+#include <termios.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <curses.h>
 #include <time.h>
 #include "single/single_menu.h"
-#include "multi/multi_menu.h"
+//#include "multi/multi_menu.h"
 #include "util/string.h"
 
 #define MENU_INTERVAL 5 // 메뉴 테두리가 스크린 가장자리로부터 얼마나 떨어지는가

@@ -1,5 +1,42 @@
 #include "multi_menu.h"
 
+// connecting 연결 중.
+int multi_connecting(){
+	clear();
+	
+	// 메뉴 테두리 구현...
+	for(int i = MENU_INTERVAL; i < COLS - MENU_INTERVAL; i++)
+		mvaddch(MENU_INTERVAL, i, '*');
+	for(int i = MENU_INTERVAL; i < COLS - MENU_INTERVAL; i++)
+		mvaddch(LINES - MENU_INTERVAL, i, '*');
+	for(int i = MENU_INTERVAL; i < LINES - MENU_INTERVAL; i++)
+		mvaddch(i, MENU_INTERVAL, '*');
+	for(int i = MENU_INTERVAL; i < LINES - MENU_INTERVAL; i++)	
+		mvaddch(i, COLS - MENU_INTERVAL, '*');
+
+	pthread_t t1;
+	int flag = 0;
+	
+	//multi_connection은 util/connection.c의 함수
+	pthread_create(&t1, NULL, multi_connection, (void*)&flag);
+
+	mvprintw(MULTI_MENU_MATCH_Y + 5, (COLS - strlen("Loading...")) / 2, "Loading...");
+	mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("-> Back")) / 2, "-> Back");
+
+	nodelay(stdsrc, TRUE);
+	while(1){
+		int c = getch();
+		if (c == '\n'){
+			pthread_cancel(t1);	
+			return -1;
+		}
+		if (flag == 1)
+			break;
+	}
+
+	return 1;
+}
+
 // 메뉴는 기본 strscr에 그린당.
 void start_multi_menu(){
 	int key = 0;
@@ -8,14 +45,25 @@ void start_multi_menu(){
 
 	while(1){
 		key = select_multi_menu();
-		
-		if (key == 1){
-		}
-		else if (key == 2){
-			return;
+		mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("2. Back")) / 2, "2. Back");
+			
+			if (key == 1){
+				int flag = multi_connecting();
+				if (flag == -1)
+					draw_multi_menu();
+				else if (flag == 1){
+					mvprintw(MULTI_MENU_BACK_Y - 1, COLS/2, "Wa! Sans!");
+					refresh();
+					return;
+				}
+				else
+					return;
+			}
+			else if (key == 2){
+				return;
+			}
 		}
 	}
-}
 
 // 방향키를 통해 메뉴를 선택할 수 있도록 함.
 int select_multi_menu(){
