@@ -8,13 +8,8 @@ int main(){
 	init_program();
 	draw_main_menu();
 
-	mvprintw(5, 5, "%d\n", string_count[2]);
-	refresh();
-
 	while(key != 3){
 		// key) 1: Single, 2: Multi, 3: Exit
-		mvprintw(10,10, "%s", get_word(2,12));
-		refresh();
 		key = select_main_menu();
 
 		if (key == 1){
