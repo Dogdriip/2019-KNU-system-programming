@@ -1,6 +1,4 @@
-#include "single.h"
 #include "endless.h"
-#include "../util/string.h"
 
 //////////////////////////////////////////////////////////////
 // linked list 관련
@@ -113,8 +111,11 @@ void add_new_word(node* header) {
 
     strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
 
+    printf("%s\n", word);
+    
+    // tmp = get_node(word, 2, (rand() % GAME_WIN_WIDTH) + GAME_WIN_X);
     tmp = get_node(word, 2, (rand() % GAME_WIN_WIDTH) + GAME_WIN_X);
-    insert_node(list_header->llink, tmp);
+    // insert_node(list_header->llink, tmp);
 }
 
 void input_handler(node* header, char str[]) {
@@ -140,6 +141,20 @@ void input_handler(node* header, char str[]) {
     // 일치하는 단어 없음
     // 그대로 아무것도 안 하고 종료
     // printf("not found\n");
+}
+
+int set_ticker(int n_msecs) {
+    struct itimerval new_timeset;
+    long n_sec, n_usecs;
+    n_sec = n_msecs / 1000;
+    n_usecs = (n_msecs % 1000) * 1000L;
+
+    new_timeset.it_interval.tv_sec = n_sec;
+    new_timeset.it_interval.tv_usec = n_usecs;
+    new_timeset.it_value.tv_sec = n_sec;
+    new_timeset.it_value.tv_usec = n_usecs;
+    
+    return setitimer(ITIMER_REAL, &new_timeset, NULL);
 }
 
 void trigger() {
@@ -219,6 +234,7 @@ void single_endless_game() {
 
 
     initscr(); clear(); refresh();
+    echo();
 
     prepare_windows();
 
