@@ -13,9 +13,7 @@
 #define MULTI_MENU_MATCH_Y 19
 #define MULTI_MENU_BACK_Y 27
 
-int flag_multi_connection = 0;
-
-int multi_connection();
+int multi_connecting();
 void start_multi_menu();
 int select_multi_menu();
 void draw_multi_menu();

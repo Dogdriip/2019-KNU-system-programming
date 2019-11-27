@@ -23,7 +23,7 @@ int multi_connecting(){
 	mvprintw(MULTI_MENU_MATCH_Y + 5, (COLS - strlen("Loading...")) / 2, "Loading...");
 	mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("-> Back")) / 2, "-> Back");
 
-	nodelay(stdsrc, TRUE);
+	nodelay(stdscr, TRUE);
 	while(1){
 		int c = getch();
 		if (c == '\n'){

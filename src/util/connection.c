@@ -1,6 +1,6 @@
 #include "connection.h"
 
-// test용
+/* test용
 int main(){
 	int len = 0;
 	int score[10] = {0};
@@ -15,7 +15,11 @@ int main(){
 		printf("%s %d\n", name[i], score[i]);
 
 	return 0;
-}
+}*/
+
+int socket_id_score = 0, socket_id_multi = 0;
+FILE* fp_score = NULL; // score server와 소통하는 파일 디스크립터
+FILE* fp_multi = NULL; // multi server와 소통하는 파일 디스크립터
 
 void* multi_connection(void* m){
 	struct sockaddr_in servadd;

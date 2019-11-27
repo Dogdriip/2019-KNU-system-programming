@@ -13,10 +13,6 @@
 #define PORTNUM_MULTI 8182
 #define SERVERADDRESS "155.230.52.58"
 
-int socket_id_score = 0, socket_id_multi = 0;
-FILE* fp_score = NULL; // score server와 소통하는 파일 디스크립터
-FILE* fp_multi = NULL; // multi server와 소통하는 파일 디스크립터
-
 // multi의 연결을 관장한다.
 void* multi_connection(void*);
 
