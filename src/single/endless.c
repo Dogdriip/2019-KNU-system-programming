@@ -110,12 +110,9 @@ void add_new_word(node* header) {
     char word[MAX_STRING_LENGTH + 1];
 
     strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
-
-    printf("%s\n", word);
     
-    // tmp = get_node(word, 2, (rand() % GAME_WIN_WIDTH) + GAME_WIN_X);
     tmp = get_node(word, 2, (rand() % GAME_WIN_WIDTH) + GAME_WIN_X);
-    // insert_node(list_header->llink, tmp);
+    insert_node(list_header->llink, tmp);
 }
 
 void input_handler(node* header, char str[]) {

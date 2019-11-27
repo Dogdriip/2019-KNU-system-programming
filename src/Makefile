@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 battle_typing: main_menu.o single_menu.o string.o endless.o
-=======
-battle_typing: main_menu.o single_menu.o multi_menu.o connection.o string.o
->>>>>>> 164a28be89f285b8f445dc47b18d84c56631e327
 	gcc -o battle_typing *.o -lcurses -pthread
 
 main_menu.o: main_menu.h main_menu.c
