@@ -88,7 +88,7 @@ void drop_word(node* header) {
         curr->y += 1;
         
         // game_win 맨 밑에 닿았다면?
-        if (curr->y >= GAME_WIN_Y + GAME_WIN_HEIGHT) {
+        if (curr->y >= GAME_WIN_HEIGHT) {
             // 그 단어 삭제 후 화면 갱신
             temp = curr->llink;
             delete_node(header, curr);
@@ -101,6 +101,7 @@ void drop_word(node* header) {
             if (remain_life <= 0) {
                 gameover();
             }
+            // update_info_win(remain_life)
         }
     }
 }
