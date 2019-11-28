@@ -34,3 +34,25 @@
 #define GAMEOVER_WIN_WIDTH COLS - (GAME_SCR_PADDING * 2)
 #define GAMEOVER_WIN_Y GAME_SCR_PADDING
 #define GAMEOVER_WIN_X GAME_SCR_PADDING
+
+
+// linked list 관련
+node* get_node(char[], int, int);
+void insert_node(node*, node*);
+void delete_node(node*, node*);
+
+
+// window 관련
+void prepare_windows();
+void update_info_win(int, int);
+void update_game_win(node*);
+
+// 게임플레이
+void gameover();
+void drop_word(node*);
+void add_new_word(node*);
+void input_handler(node*, char[]);
+int set_ticker(int);
+void trigger();
+void init_timer();
+void init_game();
