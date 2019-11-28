@@ -10,6 +10,7 @@
 #include <string.h>
 #include "../multi/multi_menu.h"
 
+#define PORTNUM_STRING 8181
 #define PORTNUM_SCORE 8281
 #define PORTNUM_MULTI 8182
 #define SERVERADDRESS "155.230.52.58"

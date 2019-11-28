@@ -9,42 +9,38 @@ int get_string_count(int i){
 
 void string_init(){
 	static int flag_complete_init = 0; // 이미 init을 호출한 적이 있는지 체크
-	char file_path[250] = {0}; // 파일의 경로가 들어갈 배열
-	char strbuf[MAX_STRING_LENGTH + 2] = ""; // 파일로부터 단어를 읽어올 버퍼
-	char *ptr = NULL; // 임시 포인터 변수
+	char strbuf[MAX_STRING_LENGTH + 2] = ""; // 단어를 읽어올 버퍼
 	FILE *fp = 0;
 
 	if (flag_complete_init != 0)
 		return;
-
-	// 리소스 폴더의 string.txt의 경로를 얻는 코드
-	getcwd(file_path, 250);
-
-	ptr = strstr(file_path, "2019-KNU-system-programming");
-	if (ptr == NULL){
-		fprintf(stderr, "게임 파일을 게임 폴더 내부에서 실행시켜 주세요.\n");
-		exit(1);
-	}
-	*(ptr + strlen("2019-KNU-system-programming")) = '\0';
 	
-	strcat(file_path, "/resource/word.txt");
+	struct sockaddr_in servadd;
+	struct hostent *hp;
+	int sock_id = socket(AF_INET, SOCK_STREAM, 0);
+	
+	bzero(&servadd, sizeof(servadd));
+	hp = gethostbyname(SERVERADDRESS);
+	bcopy(hp->h_addr, (struct sockaddr *)&servadd.sin_addr, hp->h_length);
+	servadd.sin_port = htons(PORTNUM_STRING);
+	servadd.sin_family = AF_INET;
 
-	fp = fopen(file_path, "r");	
+	connect(sock_id, (struct sockaddr *)&servadd, sizeof(servadd));
+	
+	fp = fdopen(sock_id, "r");
 
-	// 게임에서 사용할 문장들을 가져오는 코드
 	fscanf(fp, "%s", strbuf);
 	while(!feof(fp)){
-		int length = strlen(strbuf);
-		
-		if (MIN_STRING_LENGTH <= length && length <= MAX_STRING_LENGTH && string_count[length] < MAX_STRING_COUNT){
-			strcpy(string[length][string_count[length]], strbuf);
+		int len = strlen(strbuf);
 
-			string_count[length]++;
+		if (string_count[len] < MAX_STRING_COUNT){
+			strcpy(string[len][string_count[len]], strbuf);
+			string_count[strlen(strbuf)]++;
 		}
 		fscanf(fp, "%s", strbuf);
 	}
-	fclose(fp);
 
+	fclose(fp);
 	flag_complete_init = 1;
 }
 char* get_word(int min, int max){

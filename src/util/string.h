@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "connection.h"
 
 // 최소 길이 2, 최대 길이 12. 각 길이당 최대 1000개의 문장이 들어감
 #define MAX_STRING_COUNT 1000
