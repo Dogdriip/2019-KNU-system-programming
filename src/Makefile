@@ -11,7 +11,7 @@ connection.o: util/connection.h util/connection.c
 	gcc -c -o connection.o util/connection.c
 
 multi_menu.o: multi/multi_menu.h multi/multi_menu.c
-	gcc -c -o multi_menu.o multi/multi_menu.c -lthread
+	gcc -c -o multi_menu.o multi/multi_menu.c
 
 multi_game.o: multi/multi_game.h multi/multi_game.c
 	gcc -c -o multi_game.o multi/multi_game.c
