@@ -1,9 +1,21 @@
 #include "multi_menu.h"
 
-// connecting 연결 중.
-int multi_connecting(){
+// connecting...
+multi_info connecting(){
 	clear();
 	
+	// 메뉴 타이틀 구현
+	mvprintw(MENU_TITLE_Y, (COLS - strlen(" /$$$$$$$              /$$     /$$     /$$                 /$$$$$$$$                  /$$                    ")) / 2, " /$$$$$$$              /$$     /$$     /$$                 /$$$$$$$$                  /$$                    ");         
+	mvprintw(MENU_TITLE_Y+1, (COLS - strlen("| $$__  $$            | $$    | $$    | $$                |__  $$__/                 |__/                    "))/2, "| $$__  $$            | $$    | $$    | $$                |__  $$__/                 |__/                    "); 
+	mvprintw(MENU_TITLE_Y+2, (COLS - strlen("| $$  \\ $$  /$$$$$$  /$$$$$$ /$$$$$$  | $$  /$$$$$$          | $$ /$$   /$$  /$$$$$$  /$$ /$$$$$$$   /$$$$$$ "))/2, "| $$  \\ $$  /$$$$$$  /$$$$$$ /$$$$$$  | $$  /$$$$$$          | $$ /$$   /$$  /$$$$$$  /$$ /$$$$$$$   /$$$$$$ ");
+	mvprintw(MENU_TITLE_Y+3, (COLS - strlen("| $$$$$$$  |____  $$|_  $$_/|_  $$_/  | $$ /$$__  $$         | $$| $$  | $$ /$$__  $$| $$| $$__  $$ /$$__  $$"))/2, "| $$$$$$$  |____  $$|_  $$_/|_  $$_/  | $$ /$$__  $$         | $$| $$  | $$ /$$__  $$| $$| $$__  $$ /$$__  $$");
+	mvprintw(MENU_TITLE_Y+4, (COLS - strlen("| $$__  $$  /$$$$$$$  | $$    | $$    | $$| $$$$$$$$         | $$| $$  | $$| $$  \\ $$| $$| $$  \\ $$| $$  \\ $$")) / 2, "| $$__  $$  /$$$$$$$  | $$    | $$    | $$| $$$$$$$$         | $$| $$  | $$| $$  \\ $$| $$| $$  \\ $$| $$  \\ $$");
+	mvprintw(MENU_TITLE_Y+5, (COLS - strlen("| $$  \\ $$ /$$__  $$  | $$ /$$| $$ /$$| $$| $$_____/         | $$| $$  | $$| $$  | $$| $$| $$  | $$| $$  | $$"))/2, "| $$  \\ $$ /$$__  $$  | $$ /$$| $$ /$$| $$| $$_____/         | $$| $$  | $$| $$  | $$| $$| $$  | $$| $$  | $$");
+	mvprintw(MENU_TITLE_Y+6, (COLS - strlen("| $$$$$$$/|  $$$$$$$  |  $$$$/|  $$$$/| $$|  $$$$$$$         | $$|  $$$$$$$| $$$$$$$/| $$| $$  | $$|  $$$$$$$")) /2,"| $$$$$$$/|  $$$$$$$  |  $$$$/|  $$$$/| $$|  $$$$$$$         | $$|  $$$$$$$| $$$$$$$/| $$| $$  | $$|  $$$$$$$");
+	mvprintw(MENU_TITLE_Y+7, (COLS - strlen("|_______/  \\_______/   \\___/   \\___/  |__/ \\_______/         |__/ \\____  $$| $$____/ |__/|__/  |__/ \\____  $$"))/2, "|_______/  \\_______/   \\___/   \\___/  |__/ \\_______/         |__/ \\____  $$| $$____/ |__/|__/  |__/ \\____  $$");
+	mvprintw(MENU_TITLE_Y+8, (COLS - strlen("                                                                  /$$  | $$| $$                     /$$  \\ $$"))/2, "                                                                  /$$  | $$| $$                     /$$  \\ $$");
+	mvprintw(MENU_TITLE_Y+9, (COLS - strlen("                                                                 |  $$$$$$/| $$                    |  $$$$$$/"))/2, "                                                                 |  $$$$$$/| $$                    |  $$$$$$/");
+	mvprintw(MENU_TITLE_Y+10, (COLS - strlen("                                                                  \\______/ |__/                     \\______/ "))/2, "                                                                  \\______/ |__/                     \\______/ ");
 	// 메뉴 테두리 구현...
 	for(int i = MENU_INTERVAL; i < COLS - MENU_INTERVAL; i++)
 		mvaddch(MENU_INTERVAL, i, '*');
@@ -15,10 +27,10 @@ int multi_connecting(){
 		mvaddch(i, COLS - MENU_INTERVAL, '*');
 
 	pthread_t t1;
-	int flag = 0;
+	multi_info info = {NULL, 0}; // file pointer, flag
 	
 	//multi_connection은 util/connection.c의 함수
-	pthread_create(&t1, NULL, multi_connection, (void*)&flag);
+	pthread_create(&t1, NULL, multi_connection, (void*)&info);
 
 	mvprintw(MULTI_MENU_MATCH_Y + 5, (COLS - strlen("Loading...")) / 2, "Loading...");
 	mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("-> Back")) / 2, "-> Back");
@@ -27,14 +39,17 @@ int multi_connecting(){
 	while(1){
 		int c = getch();
 		if (c == '\n'){
+			nodelay(stdscr, FALSE);
 			pthread_cancel(t1);	
-			return -1;
+			nodelay(stdscr, FALSE);
+			info.flag = 0;
+			return info; // 연결 취소
 		}
-		if (flag == 1)
-			break;
+		if (info.flag != 0){
+			nodelay(stdscr, FALSE);
+			return info;
+		}
 	}
-
-	return 1;
 }
 
 // 메뉴는 기본 strscr에 그린당.
@@ -48,16 +63,21 @@ void start_multi_menu(){
 		mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("2. Back")) / 2, "2. Back");
 			
 			if (key == 1){
-				int flag = multi_connecting();
-				if (flag == -1)
+				multi_info info = connecting();
+				if (info.flag == -1){ // 연결도중 에러 발생
 					draw_multi_menu();
-				else if (flag == 1){
-					mvprintw(MULTI_MENU_BACK_Y - 1, COLS/2, "Wa! Sans!");
-					refresh();
+					mvprintw(10,10, "connecting failed");
+				}
+				else if (info.flag == 1){ // 연결 성공
+					start_multi_game(info.fp);
 					return;
 				}
-				else
+				else if (info.flag == 0){ // 연결 취소
+					mvprintw(MULTI_MENU_BACK_Y - 1, COLS/2, "connecting canceld");
+					refresh();
+					getch();
 					return;
+				}
 			}
 			else if (key == 2){
 				return;

@@ -1,22 +1,5 @@
 #include "connection.h"
 
-/* test용
-int main(){
-	int len = 0;
-	int score[10] = {0};
-	char name[10][4] = {""};
-	
-	open_score_server();
-	send_score(10, "ASD");
-	len = receive_score(score, name);
-	close_score_server();
-
-	for(int i = 0; i < len; i++)
-		printf("%s %d\n", name[i], score[i]);
-
-	return 0;
-}*/
-
 int socket_id_score = 0, socket_id_multi = 0;
 FILE* fp_score = NULL; // score server와 소통하는 파일 디스크립터
 FILE* fp_multi = NULL; // multi server와 소통하는 파일 디스크립터
@@ -26,29 +9,29 @@ void* multi_connection(void* m){
 	struct hostent *hp;
 	char message[BUFSIZ];
 	int row, col;
-	int *flag = (int*)m; // 연결 제대로 되면 1, 안되면 -1
+	multi_info *info = (multi_info*)m; // 연결 제대로 되면 1, 안되면 -1
 
-	*flag = -1;
+	info->flag = 0;
 
 	socket_id_multi = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_id_multi == -1){
-		printf("multi_connection socket open error\n");
-		exit(1);
+		info->flag = -1;
+		return NULL;
 	}
 
 	bzero(&servadd, sizeof(servadd));
 	hp = gethostbyname(SERVERADDRESS);
 	if (hp == NULL){
-		printf("gethostbyname error");
-		exit(1);
+		info->flag = -1;
+		return NULL;
 	}
 	bcopy(hp->h_addr, (struct sockaddr *)&servadd.sin_addr, hp->h_length);
 	servadd.sin_port = htons(PORTNUM_MULTI);
 	servadd.sin_family = AF_INET;
 
 	if (connect(socket_id_multi, (struct sockaddr *)&servadd, sizeof(servadd)) != 0){
-		printf("multi_connection connect 문제 발생");
-		exit(1);
+		info->flag = -1;
+		return NULL;
 	}
 	
 	fp_multi = fdopen(socket_id_multi, "w+");
@@ -60,7 +43,8 @@ void* multi_connection(void* m){
 	if (strcmp(message, "loading") == 0)
 		fscanf(fp_multi, "%s", message);
 
-	*flag = 1;
+	info->fp = fp_multi;
+	info->flag = 1;
 }
 
 void open_score_server(){

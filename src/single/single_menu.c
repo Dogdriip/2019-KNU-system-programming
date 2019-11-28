@@ -5,6 +5,8 @@ void start_single_menu(){
 	int key = 0;
 
 	draw_single_menu();
+	FILE *fp123 = fopen("asd.txt", "w");
+	putwin(stdscr, fp123);
 
 	while(1){
 		key = select_single_menu();

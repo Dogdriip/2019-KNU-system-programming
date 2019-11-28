@@ -9,11 +9,17 @@
 #include <pthread.h>
 #include "../util/connection.h"
 #include "../main_menu.h"
+#include "multi_game.h"
 
 #define MULTI_MENU_MATCH_Y 19
 #define MULTI_MENU_BACK_Y 27
 
-int multi_connecting();
+typedef struct multi_info{
+	FILE *fp;
+	int flag;
+}multi_info;
+
+multi_info connecting();
 void start_multi_menu();
 int select_multi_menu();
 void draw_multi_menu();
