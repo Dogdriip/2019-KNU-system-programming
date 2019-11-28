@@ -8,10 +8,15 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+#define PORTNUM_STRING 8181
 #define PORTNUM_SCORE 8281
 #define PORTNUM_MULTI 8182
 #define HOSTLEN 256
 #define oops(msg) {perror(msg); exit(1);}
+
+#define MIN_STRING_LENGTH 2
+#define MAX_STRING_LENGTH 12
+#define MAX_STRING_COUNT 1000
 
 struct Score{
 	int score;
@@ -21,7 +26,11 @@ struct multi_match{
 	FILE *fp1, *fp2;
 };
 
+char string[MAX_STRING_LENGTH + 1][MAX_STRING_COUNT][MAX_STRING_LENGTH + 1];
+int string_count[MAX_STRING_LENGTH + 1];
 FILE *sock_score_fp = NULL;
+
+void* string_server(void*);
 
 void* multi_server(void*);
 void* multi_screen_communication(void*);
@@ -32,12 +41,62 @@ void send_score();
 void* score_server(void*);
 
 int main(){
-	pthread_t t1, t2;
+	pthread_t t1, t2, t3;
 
 	pthread_create(&t1, NULL, score_server, NULL); 
 	pthread_create(&t2, NULL, multi_server, NULL);
+	ptrhead_create(&t3, NULL, string_server, NULL);
 	pthread_join(t1, NULL);
 	pthread_join(t2, NULL);
+	pthread_join(t3, NULL);
+}
+
+void* string_server(void* thread_data){
+	FILE *fp = fopen("word.txt", "r");
+
+	fscanf(fp, "%s", strbuf);
+	while(!feof(fp)){
+		int length = strlen(strbuf);
+
+		if (MIN_STRING_LENGTH <= length && length <= MAX_STRING_LENGTH && string_count[length] < MAX_STRING_COUNT){
+			strcpy(string[length][string_count[length]], strbuf);
+
+			string_count[length]++;
+		}
+		fscanf(fp, "%s", strbuf);
+	}
+	fclose(fp);
+
+	struct sockaddr_in saddr;
+	struct hostent *hp;
+	char hostname[HOSTLEN];
+	int sock_id, sock_fd;
+
+	sock_id = socket(PF_INET, SOCK_STREAM, 0);
+	bzero((void *)&saddr, sizeof(saddr));
+
+	gethostname(hostname, HOSTLEN);
+	hp = gethostbyname(hostname);
+
+	bcopy((void *)hp->h_addr, (void *)&saddr.sin_addr, hp->h_length);
+	saddr.sin_port = htons(PORTNUM_STRING);
+	saddr.sin_family = AF_INET;
+
+	bind(sock_id, (struct sockaddr *)&saddr, sizeof(saddr));
+
+	listen(sock_id, 50);
+
+	while(1){
+		sock_fd = accept(sock_id, NULL, NULL);
+		printf("string 서버 연결 성공\n");
+
+		fp = fdopen(sock_fd, "w");
+		
+		for(int i = MIN_STRING_LENGTH; i <= MAX_STRING_LENGTH; i++)
+			for(int j = 0; j < string_count[i]; j++)
+				fprintf(fp, "%s\n", string[i][j]);
+		fclose(fp);
+	}	
 }
 
 void* multi_server(void* thread_data){
@@ -96,6 +155,9 @@ void* multi_server(void* thread_data){
 		fprintf(thr_data->fp2, "match");
 		fflush(thr_data->fp1);
 		fflush(thr_data->fp2);
+
+		pthread_t thread_screen;
+		pthread_create(&thread_screen, &attr, multi_screen_communication, (void*)thr_data);
 	}
 	pthread_attr_destroy(&attr);
 
@@ -103,10 +165,31 @@ void* multi_server(void* thread_data){
 
 void* multi_screen_communication(void* thr_data){
 	struct multi_match *data = (struct multi_match*)thr_data;
-	
+	FILE *fp1 = data->fp1;
+	FILE *fp2 = data->fp2;
+	char message[1000000];
 
+	while(1){
+		int len = 0;
+		int flag = 0;
+		
+		fread(&flag, sizeof(int), 1, fp1);
+		if (flag == -1)
+			return NULL;
+		len = fread(&message[0], sizeof(char) * 10000, 1, fp1);
+		while(!feof(fp1))
+			len += fread(&message[len], sizeof(char) * 10000, 1, fp1);
+		fwrite(message, sizeof(char) * len, 1, fp2);
+
+		fread(&flag, sizeof(int), 1, fp2);
+		if (flag == -1)
+			return NULL;
+		len = fread(&message[0], sizeof(char) * 10000, 1, fp2);
+		while(!feof(fp2))
+			len += fread(&message[len], sizeof(char) * 10000, 1, fp2);
+		fwrite(message, sizeof(char) * len, 1, fp1);
+	}
 }
-
 void* score_server(void* thread_data){
 	struct sockaddr_in saddr;
 	struct hostent *hp;
