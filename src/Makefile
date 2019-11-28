@@ -26,4 +26,4 @@ endless.o: single/endless.c single/endless.h
 #	gcc -c -o time_attack.o single/time_attack.c
 
 clean:
-	rm *.o battle_typing
+	rm *.o

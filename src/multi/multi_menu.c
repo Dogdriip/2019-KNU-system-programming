@@ -32,23 +32,39 @@ multi_info connecting(){
 	//multi_connection은 util/connection.c의 함수
 	pthread_create(&t1, NULL, multi_connection, (void*)&info);
 
-	mvprintw(MULTI_MENU_MATCH_Y + 5, (COLS - strlen("Loading...")) / 2, "Loading...");
+	char loading_message[3][11] = {"Loading.  ", "Loading.. ", "Loading..."};
+	
 	mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("-> Back")) / 2, "-> Back");
 
 	nodelay(stdscr, TRUE);
+	int loading_count = 0;
 	while(1){
 		int c = getch();
 		if (c == '\n'){
-			nodelay(stdscr, FALSE);
+			fprintf(info.fp, "%d", -1);
+			fflush(info.fp);
+
 			pthread_cancel(t1);	
+			fclose(info.fp);
 			nodelay(stdscr, FALSE);
 			info.flag = 0;
+			mvprintw(11,10, "please");
+			getch();
 			return info; // 연결 취소
 		}
 		if (info.flag != 0){
 			nodelay(stdscr, FALSE);
+			mvprintw(11,10, "zz");
+			fprintf(info.fp, "%d", 1);
+			refresh();
+			getch();
 			return info;
 		}
+		
+		mvprintw(MULTI_MENU_MATCH_Y + 5, (COLS - strlen("Loading...")) / 2, loading_message[loading_count]);
+		refresh();
+		loading_count = (loading_count + 1) % 3;
+		sleep(1);
 	}
 }
 
@@ -69,6 +85,11 @@ void start_multi_menu(){
 					mvprintw(10,10, "connecting failed");
 				}
 				else if (info.flag == 1){ // 연결 성공
+					//// 테스트용
+					mvprintw(MULTI_MENU_BACK_Y - 1, COLS/2, "connecting success");
+					refresh();
+					getch();
+					////
 					start_multi_game(info.fp);
 					return;
 				}

@@ -34,16 +34,19 @@ void* multi_connection(void* m){
 		return NULL;
 	}
 	
-	fp_multi = fdopen(socket_id_multi, "w+");
+	fp_multi = fdopen(socket_id_multi, "r+");
+	info->fp = fp_multi;
 
 	// 연결 성공하면, loading or match.
 	// loading은 다른 클라이언트를 기다리는 상태.
 	// match는 잡힌 상태
 	fscanf(fp_multi, "%s", message);
-	if (strcmp(message, "loading") == 0)
+	if (strcmp(message, "loading") == 0){
 		fscanf(fp_multi, "%s", message);
+		fprintf(fp_multi, "%d", 1);
+		fflush(fp_multi);
+	}
 
-	info->fp = fp_multi;
 	info->flag = 1;
 }
 

@@ -1,11 +1,11 @@
 #include "main_menu.h"
 
-
 int main(){
 	int key = 0;
 	initscr();
 	clear();
 
+	draw_main_menu();
 	init_program();
 	draw_main_menu();
 
@@ -50,7 +50,21 @@ void init_program(){
 	srand((long)time(NULL));
 	keypad(stdscr, TRUE);
 
-	string_init();
+	string_init(1);
+	/* 디버깅할때는 꺼두자. 서버때매 귀찮아짐
+	mvprintw(MENU_SELECT_SINGLE_Y, (COLS - strlen("              ")) / 2, "               "); 
+	mvprintw(MENU_SELECT_MULTI_Y, (COLS - strlen("               ")) / 2, "               "); 
+	mvprintw(MENU_SELECT_EXIT_Y, (COLS - strlen("          ")) / 2, "          "); 
+	refresh();
+	int i = 0;
+	char message[3][30] = {"Server Connecting.  ", "Server Connecting.. ", "Server Connecting..."};
+	while(string_init() == -1){
+		mvprintw(MENU_SELECT_SINGLE_Y, (COLS - strlen(message[2])) / 2, message[i]);
+		i = (i + 1) % 3;
+		refresh();
+		sleep(1);
+	}
+	*/
 
 	curs_set(0);
 }

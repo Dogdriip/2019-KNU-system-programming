@@ -11,6 +11,6 @@
 #define MIN_STRING_LENGTH 2
 #define MAX_STRING_LENGTH 12
 
-void string_init(); // 파일에서 단어를 가져와서 string 버퍼에 저장.
+int string_init(int mode); // 파일에서 단어를 가져와서 string 버퍼에 저장.
 char* get_word(int min, int max); // 단어를 얻음
 int get_string_count(int i);
