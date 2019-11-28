@@ -7,6 +7,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include "../main_menu.h"
+#include "single.h"
+#include "endless.h"
+#include "time_attack.h"
 
 #define SINGLE_MENU_ENDLESS_Y 19
 #define SINGLE_MENU_TIMEATTACK_Y 23

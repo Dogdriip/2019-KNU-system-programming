@@ -14,9 +14,12 @@ void start_single_menu(){
 		if (key == 1){
 			// endless
 			single_endless_game();
+			return;
 		}
 		else if (key == 2){
 			// time attack
+			// single_time_attack_mode();
+			return;
 		}
 		else{
 			return;

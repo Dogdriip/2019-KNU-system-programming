@@ -22,5 +22,8 @@ string.o: util/string.c util/string.h
 endless.o: single/endless.c single/endless.h
 	gcc -c -o endless.o single/endless.c
 
+#time_attack.o: single/time_attack.c single/time_attack.h
+#	gcc -c -o time_attack.o single/time_attack.c
+
 clean:
 	rm *.o battle_typing

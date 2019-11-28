@@ -80,25 +80,36 @@ int word_drop_c;
 int new_word_c;
 
 void gameover() {
+    signal(SIGALRM, SIG_IGN);
+
     wclear(game_win);
     wclear(info_win);
     wclear(typing_win);
 
-    delwin(game_win);
-    delwin(info_win);
-    delwin(typing_win);
+    wrefresh(game_win);
+    wrefresh(info_win);
+    wrefresh(typing_win);
+
+    // delwin(game_win);
+    // delwin(info_win);
+    // delwin(typing_win);
     
     gameover_win = newwin(GAMEOVER_WIN_HEIGHT, GAMEOVER_WIN_WIDTH, GAMEOVER_WIN_Y, GAMEOVER_WIN_X);
     box(gameover_win, '*', '*');
 
-    
 
 
+    char gameover_str[] = "GAME OVER";
+    wmove(gameover_win, GAMEOVER_WIN_Y + 5, (GAMEOVER_WIN_X + (GAMEOVER_WIN_X + GAMEOVER_WIN_WIDTH)) / 2 - strlen(gameover_str));
+    wprintw(gameover_win, gameover_str);
 
+    wmove(gameover_win, GAMEOVER_WIN_Y + 8, GAMEOVER_WIN_X + 50);
+    wprintw(gameover_win, "SCORE : %d", elapsed_time);
 
+    wrefresh(gameover_win);
 
-
-
+    // TODO: 이름 입력
+    // getch();
 
     // 종료 조건: flag를 false로
     FLAG = 0;
@@ -123,6 +134,7 @@ void drop_word(node* header) {
             // life 1 감소
             remain_life -= 1;
             if (remain_life <= 0) {
+                printf("gameover\n");
                 gameover();
             }
         }
@@ -135,8 +147,8 @@ void add_new_word(node* header) {
 
     strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
     
-    // TODO: 랜덤 x위치를 더 정확하게 설정해야 함 (오른쪽 boundary!)
-    tmp = get_node(word, 2, (rand() % GAME_WIN_WIDTH) + GAME_WIN_X);
+    // TODO: 버그. 수정해야 함.
+    tmp = get_node(word, 2, (rand() % (GAME_WIN_WIDTH - MAX_STRING_LENGTH - 3) + GAME_WIN_X + 1));
     insert_node(list_header->llink, tmp);
 }
 

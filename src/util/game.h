@@ -7,10 +7,10 @@
 
 
 // 게임플레이 관련
-#define LIFE_INIT 5
+#define LIFE_INIT 1
 #define CLOCK_INTERVAL 100
-#define WORD_DROP_C_INIT 700
-#define NEW_WORD_C_INIT 2000
+#define WORD_DROP_C_INIT 100
+#define NEW_WORD_C_INIT 500
 
 
 // doubly linked list
