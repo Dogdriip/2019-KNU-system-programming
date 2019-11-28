@@ -37,6 +37,8 @@ WINDOW* game_win;  // 좌상단 가장 큰 게임 메인창
 WINDOW* info_win;  // 우상단 현재 게임 정보 출력창
 WINDOW* typing_win;  // 하단 유저 입력창
 
+WINDOW* gameover_win;  // 게임오버 창
+
 void prepare_windows() {
     game_win = newwin(GAME_WIN_HEIGHT, GAME_WIN_WIDTH, GAME_WIN_Y, GAME_WIN_X);
     box(game_win, '*', '*');
@@ -71,13 +73,35 @@ void update_game_win(node* header) {
 
 //////////////////////////////////////////////////////////////
 // 게임플레이
+short int FLAG;  // 게임 종료 여부
 int elapsed_time;
 int remain_life;
 int word_drop_c;
 int new_word_c;
 
 void gameover() {
-    // TODO:
+    wclear(game_win);
+    wclear(info_win);
+    wclear(typing_win);
+
+    delwin(game_win);
+    delwin(info_win);
+    delwin(typing_win);
+    
+    gameover_win = newwin(GAMEOVER_WIN_HEIGHT, GAMEOVER_WIN_WIDTH, GAMEOVER_WIN_Y, GAMEOVER_WIN_X);
+    box(gameover_win, '*', '*');
+
+    
+
+
+
+
+
+
+
+
+    // 종료 조건: flag를 false로
+    FLAG = 0;
 }
 
 void drop_word(node* header) {
@@ -88,7 +112,7 @@ void drop_word(node* header) {
         curr->y += 1;
         
         // game_win 맨 밑에 닿았다면?
-        if (curr->y >= GAME_WIN_HEIGHT) {
+        if (curr->y >= GAME_WIN_HEIGHT - 1) {
             // 그 단어 삭제 후 화면 갱신
             temp = curr->llink;
             delete_node(header, curr);
@@ -101,7 +125,6 @@ void drop_word(node* header) {
             if (remain_life <= 0) {
                 gameover();
             }
-            // update_info_win(remain_life)
         }
     }
 }
@@ -112,6 +135,7 @@ void add_new_word(node* header) {
 
     strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
     
+    // TODO: 랜덤 x위치를 더 정확하게 설정해야 함 (오른쪽 boundary!)
     tmp = get_node(word, 2, (rand() % GAME_WIN_WIDTH) + GAME_WIN_X);
     insert_node(list_header->llink, tmp);
 }
@@ -122,8 +146,6 @@ void input_handler(node* header, char str[]) {
     for (curr = header->rlink; curr != header; curr = curr->rlink) {
         if (!strcmp(curr->word, str)) { 
             // 단어 일치
-            // printf("found\n");
-
             // 그 노드 삭제
             temp = curr->llink;
             delete_node(header, curr);
@@ -138,7 +160,6 @@ void input_handler(node* header, char str[]) {
 
     // 일치하는 단어 없음
     // 그대로 아무것도 안 하고 종료
-    // printf("not found\n");
 }
 
 int set_ticker(int n_msecs) {
@@ -197,29 +218,11 @@ void init_timer() {
 }
 
 void init_game() {
+    FLAG = 1;
     remain_life = LIFE_INIT;
 
     list_header = (node*)malloc(sizeof(*list_header));
     list_header->llink = list_header->rlink = list_header;
-
-    ///////////////////// DEBUG!
-    /*
-    node* tmp;
-
-    tmp = get_node("apple", 2, 50);
-    insert_node(list_header->llink, tmp);
-
-    tmp = get_node("banana", 4, 20);
-    insert_node(list_header->llink, tmp);
-
-    tmp = get_node("cat", 6, 30);
-    insert_node(list_header->llink, tmp);
-
-    tmp = get_node("dog", 8, 70);
-    insert_node(list_header->llink, tmp);
-    */
-    ///////////////////// DEBUG!
-
 }
 //////////////////////////////////////////////////////////////
 
@@ -230,9 +233,8 @@ void single_endless_game() {
     int input_len = 0;
     int i;
 
-
-    initscr(); clear(); refresh();
     echo();
+    clear(); refresh();
 
     prepare_windows();
 
@@ -242,7 +244,7 @@ void single_endless_game() {
     // 시작하자마자 trigger 한번 실행?
     // trigger();
 
-    while (strcmp(input_str, "quit")) {
+    while (FLAG) {
         // input 받자
         wmove(typing_win, 2, 2);
         wgetstr(typing_win, input_str);
@@ -259,14 +261,5 @@ void single_endless_game() {
 
         input_handler(list_header, input_str);
     }
-    
-    wclear(game_win);
-    wclear(info_win);
-    wclear(typing_win);
 
-    delwin(game_win);
-    delwin(info_win);
-    delwin(typing_win);
-
-    endwin();
 }
