@@ -45,13 +45,15 @@ int main(){
 
 	pthread_create(&t1, NULL, score_server, NULL); 
 	pthread_create(&t2, NULL, multi_server, NULL);
-	ptrhead_create(&t3, NULL, string_server, NULL);
+	pthread_create(&t3, NULL, string_server, NULL);
 	pthread_join(t1, NULL);
 	pthread_join(t2, NULL);
 	pthread_join(t3, NULL);
 }
 
 void* string_server(void* thread_data){
+	char strbuf[20];
+
 	FILE *fp = fopen("word.txt", "r");
 
 	fscanf(fp, "%s", strbuf);
