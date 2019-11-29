@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <fcntl.h>
 
 #define PORTNUM_STRING 8181
 #define PORTNUM_SCORE 8281
@@ -22,18 +23,21 @@ struct Score{
 	int score;
 	char name[4];
 };
-struct multi_match{
-	FILE *fp1, *fp2;
-};
+typedef struct multi_match{
+	int fd1, fd2;
+}multi_match;
 
 char string[MAX_STRING_LENGTH + 1][MAX_STRING_COUNT][MAX_STRING_LENGTH + 1];
 int string_count[MAX_STRING_LENGTH + 1];
 FILE *sock_score_fp = NULL;
+int sock_multi_id;
+
 
 void* string_server(void*);
 
 void* multi_server(void*);
 void* multi_screen_communication(void*);
+void* wait_other(void*);
 
 void save_score(struct Score score);
 void receive_score();
@@ -69,6 +73,8 @@ void* string_server(void* thread_data){
 	}
 	fclose(fp);
 
+	printf("string 준비 완료\n");
+
 	struct sockaddr_in saddr;
 	struct hostent *hp;
 	char hostname[HOSTLEN];
@@ -88,6 +94,7 @@ void* string_server(void* thread_data){
 
 	listen(sock_id, 50);
 
+	printf("string 서버 대기 시작\n");
 	while(1){
 		sock_fd = accept(sock_id, NULL, NULL);
 		printf("string 서버 연결 성공\n");
@@ -106,10 +113,10 @@ void* multi_server(void* thread_data){
 	struct hostent *hp;
 	pthread_attr_t attr;
 	char hostname[HOSTLEN];
-	int sock_id, sock_fd1, sock_fd2;
+	int sock_fd1, sock_fd2;
 
-	sock_id = socket(PF_INET, SOCK_STREAM, 0);
-	if (sock_id == -1)
+	sock_multi_id = socket(PF_INET, SOCK_STREAM, 0);
+	if (sock_multi_id == -1)
 		oops("mulit server socket");
 
 	bzero((void *)&saddr, sizeof(saddr));
@@ -121,10 +128,10 @@ void* multi_server(void* thread_data){
 	saddr.sin_port = htons(PORTNUM_MULTI);
 	saddr.sin_family = AF_INET;
 
-	if (bind(sock_id, (struct sockaddr *)&saddr, sizeof(saddr)) != 0)
+	if (bind(sock_multi_id, (struct sockaddr *)&saddr, sizeof(saddr)) != 0)
 		oops("multi bind");
 
-	if (listen(sock_id, 200) != 0)
+	if (listen(sock_multi_id, 200) != 0)
 		oops("multi listen");
 
 	// 쓰레드 detach 옵션 설정
@@ -133,30 +140,36 @@ void* multi_server(void* thread_data){
 
 	while(1){
 		struct multi_match *thr_data = (struct multi_match*)malloc(sizeof(struct multi_match));
-		
+		char message[30];
+		printf("client1 accpt 대기\n");
+
 		// 첫번째 클라이언트와 연결.
-		sock_fd1 = accept(sock_id, NULL, NULL);
-		if (sock_fd1 == -1)
+		thr_data->fd1 = accept(sock_multi_id, NULL, NULL);
+		if (thr_data->fd1 == -1)
 			oops("multi accept error");
 		printf("client1 accept 완료\n");
-		thr_data->fp1 = fdopen(sock_fd1, "w+");
-		if (thr_data->fp1 == NULL)
-			oops("client1 fdopen failed");
-		fprintf(thr_data->fp1, "loading");
-		fflush(thr_data->fp1);
-		
+		strcpy(message, "loading");
+		write(thr_data->fd1, message, (strlen(message) + 1) * sizeof(char));
+	
+		printf("두번째 클라이언트 연결 대기\n");
 		// 두번째 클라이언트와 연결
-		sock_fd2 = accept(sock_id, NULL, NULL);
-		if (sock_fd2 == -1)
-			oops("multi accept error2");
-		printf("client2 accept 완료\n");
-		thr_data->fp2 = fdopen(sock_fd2, "w+");
-		if (thr_data->fp2 == NULL)
-			oops("client2 fdopen failed");
-		fprintf(thr_data->fp1, "match");
-		fprintf(thr_data->fp2, "match");
-		fflush(thr_data->fp1);
-		fflush(thr_data->fp2);
+		pthread_t thread_wait;
+		thr_data->fd2 = -1;
+
+		pthread_create(&thread_wait, &attr, wait_other, (void*)thr_data);
+		
+		int flag = 0;
+		read(thr_data->fd1, &flag, sizeof(int));
+		printf("받은 값 : %d\n", flag);
+
+		if (flag == -1){
+			pthread_cancel(thread_wait);
+			printf("첫번째 클라이언트 연결 취소\n");
+			close(thr_data->fd1);
+			continue;
+		}
+
+		printf("ok!\n");
 
 		pthread_t thread_screen;
 		pthread_create(&thread_screen, &attr, multi_screen_communication, (void*)thr_data);
@@ -165,31 +178,53 @@ void* multi_server(void* thread_data){
 
 }
 
+// 두번째 클라이언트 연결
+void* wait_other(void *m){
+	multi_match *data = (multi_match*)m;	
+	int fd2;
+	char message[30] = "match11";
+	sleep(1);
+
+	fd2 = accept(sock_multi_id, NULL, NULL);
+	if (fd2 == -1)
+		oops("client2 accept error");
+	data->fd2 = fd2;
+	printf("client2 accept 완료\n");
+
+	write(data->fd1, message, (strlen(message)+1) * sizeof(char));
+	write(data->fd2, message, (strlen(message)+1) * sizeof(char));
+	printf("match message 송신 완료\n");
+}
+
+// 스크린을 주고받는 함수
 void* multi_screen_communication(void* thr_data){
-	struct multi_match *data = (struct multi_match*)thr_data;
-	FILE *fp1 = data->fp1;
-	FILE *fp2 = data->fp2;
-	char message[1000000];
+	multi_match *data = (multi_match*)thr_data;
+	int fd1 = data->fd1, fd2 = data->fd2;
+	char message[100001];
 
 	while(1){
 		int len = 0;
-		int flag = 0;
-		
-		fread(&flag, sizeof(int), 1, fp1);
-		if (flag == -1)
-			return NULL;
-		len = fread(&message[0], sizeof(char) * 10000, 1, fp1);
-		while(!feof(fp1))
-			len += fread(&message[len], sizeof(char) * 10000, 1, fp1);
-		fwrite(message, sizeof(char) * len, 1, fp2);
+		int total_len = 0;
+		int flag1 = 0, flag2 = 0; // 게임이 끝났는지 체크
 
-		fread(&flag, sizeof(int), 1, fp2);
-		if (flag == -1)
+		printf("flag 입력 대기 -> ");
+		read(fd1, &flag1, sizeof(int));
+		read(fd2, &flag2, sizeof(int));
+		if (flag1 == -1 || flag2 == -1){
+			printf("게임 하나 끝남\n");
 			return NULL;
-		len = fread(&message[0], sizeof(char) * 10000, 1, fp2);
-		while(!feof(fp2))
-			len += fread(&message[len], sizeof(char) * 10000, 1, fp2);
-		fwrite(message, sizeof(char) * len, 1, fp1);
+		}
+		printf("클라이언트1 데이터 입력 대기 ->");
+		read(fd1, &total_len, sizeof(int));
+		read(fd1, message, sizeof(char) * total_len);
+		write(fd2, &total_len, sizeof(int));
+		write(fd2, message, sizeof(char) * total_len);
+
+		printf("클라이언트2 데이터 입력 대기\n");
+		read(fd2, &total_len, sizeof(int));
+		read(fd2, message, sizeof(char) * total_len);
+		write(fd1, &total_len, sizeof(int));
+		write(fd1, message, sizeof(char) * total_len);
 	}
 }
 void* score_server(void* thread_data){
