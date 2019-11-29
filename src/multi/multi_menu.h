@@ -15,8 +15,9 @@
 #define MULTI_MENU_BACK_Y 27
 
 typedef struct multi_info{
-	FILE *fp;
 	int flag;
+	int fd;
+	char message[30];
 }multi_info;
 
 multi_info connecting();

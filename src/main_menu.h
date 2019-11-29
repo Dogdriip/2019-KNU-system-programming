@@ -23,7 +23,7 @@
 // Screen Col : COLS
 
 void tty_mode(int how); // 프로그램 실행 전 터미널 설정을 저장해주고, 복구해주는 함수. 사실 필요없을 듯
-void init_program(); // Program 시작시 초기화 및 필요한 작업을 해주는 함수
+int init_program(); // Program 시작시 초기화 및 필요한 작업을 해주는 함수
 void end_program(); // Program 종료시 실행...
 void draw_main_menu(); // strscr에 그려진 모든 텍스트를 지우고, 메인 메뉴를 출력해줌
 int select_main_menu(); // 방향키와 엔터로 메뉴를 선택하도록 하는 함수

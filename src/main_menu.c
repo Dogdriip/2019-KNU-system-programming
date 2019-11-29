@@ -6,8 +6,17 @@ int main(){
 	clear();
 
 	draw_main_menu();
-	init_program();
+	if (init_program() == -1){
+		getch();
+		end_program();
+		endwin();
+		return 0;
+	}
 	draw_main_menu();
+
+	for(int i = 2; i <=12; i++)
+		mvprintw(10+i, 10, "%d", get_string_count(i));
+	refresh();
 
 	while(key != 3){
 		// key) 1: Single, 2: Multi, 3: Exit
@@ -24,6 +33,8 @@ int main(){
 
 	end_program();
 	endwin();
+
+	return 0;
 }
 
 // 터미널 설정을 저장해두고, 복구함
@@ -44,13 +55,17 @@ void tty_mode(int how){
 }
 
 // program 시작시 초기화
-void init_program(){
+int init_program(){
 	tty_mode(0);
 	noecho();
 	srand((long)time(NULL));
 	keypad(stdscr, TRUE);
 
-	string_init(1);
+	if (string_init(1) == -1){ // 0이면 서버에서, 1이면 로컬에서
+		clear();
+		mvprintw(LINES/2, COLS/2 - 10, "game error. please restart");
+		return -1;
+	}
 	/* 디버깅할때는 꺼두자. 서버때매 귀찮아짐
 	mvprintw(MENU_SELECT_SINGLE_Y, (COLS - strlen("              ")) / 2, "               "); 
 	mvprintw(MENU_SELECT_MULTI_Y, (COLS - strlen("               ")) / 2, "               "); 
@@ -58,7 +73,7 @@ void init_program(){
 	refresh();
 	int i = 0;
 	char message[3][30] = {"Server Connecting.  ", "Server Connecting.. ", "Server Connecting..."};
-	while(string_init() == -1){
+	while(string_init(0) == -1){
 		mvprintw(MENU_SELECT_SINGLE_Y, (COLS - strlen(message[2])) / 2, message[i]);
 		i = (i + 1) % 3;
 		refresh();
@@ -67,6 +82,8 @@ void init_program(){
 	*/
 
 	curs_set(0);
+
+	return 0;
 }
 
 // program 종료시 초기화

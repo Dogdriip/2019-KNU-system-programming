@@ -25,4 +25,6 @@
 #define MULTI_OTHER_WIN_Y GAME_SCR_PADDING
 #define MULTI_OTHER_WIN_X GAME_SCR_PADDING + MULTI_GAME_WIN_WIDTH
 
-void start_multi_game(FILE*);
+#define MULTI_INIT_COMMUNICATION_C 1000
+
+void start_multi_game(int);

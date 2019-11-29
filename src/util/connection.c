@@ -2,12 +2,11 @@
 
 int socket_id_score = 0, socket_id_multi = 0;
 FILE* fp_score = NULL; // score server와 소통하는 파일 디스크립터
-FILE* fp_multi = NULL; // multi server와 소통하는 파일 디스크립터
 
 void* multi_connection(void* m){
 	struct sockaddr_in servadd;
 	struct hostent *hp;
-	char message[BUFSIZ];
+	char message[BUFSIZ], *msg_loading = "loading", *msg_match = "match11";
 	int row, col;
 	multi_info *info = (multi_info*)m; // 연결 제대로 되면 1, 안되면 -1
 
@@ -34,17 +33,17 @@ void* multi_connection(void* m){
 		return NULL;
 	}
 	
-	fp_multi = fdopen(socket_id_multi, "r+");
-	info->fp = fp_multi;
-
+	info->fd = socket_id_multi;
+	
 	// 연결 성공하면, loading or match.
 	// loading은 다른 클라이언트를 기다리는 상태.
 	// match는 잡힌 상태
-	fscanf(fp_multi, "%s", message);
+	read(info->fd, message, (strlen(msg_loading) + 1) * sizeof(char));
 	if (strcmp(message, "loading") == 0){
-		fscanf(fp_multi, "%s", message);
-		fprintf(fp_multi, "%d", 1);
-		fflush(fp_multi);
+		read(info->fd, message, (strlen(msg_match) + 1) * sizeof(char));
+
+		int temp = 1;
+		write(info->fd, &temp, sizeof(int));
 	}
 
 	info->flag = 1;

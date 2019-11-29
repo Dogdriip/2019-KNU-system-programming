@@ -27,7 +27,7 @@ multi_info connecting(){
 		mvaddch(i, COLS - MENU_INTERVAL, '*');
 
 	pthread_t t1;
-	multi_info info = {NULL, 0}; // file pointer, flag
+	multi_info info = {0, 0, ""}; // flag, fd, message
 	
 	//multi_connection은 util/connection.c의 함수
 	pthread_create(&t1, NULL, multi_connection, (void*)&info);
@@ -37,34 +37,28 @@ multi_info connecting(){
 	mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("-> Back")) / 2, "-> Back");
 
 	nodelay(stdscr, TRUE);
-	int loading_count = 0;
+	int loading_count = 0, loading_index = 0;
 	while(1){
 		int c = getch();
 		if (c == '\n'){
-			fprintf(info.fp, "%d", -1);
-			fflush(info.fp);
+			nodelay(stdscr, FALSE);
+			int temp = -1;
+			write(info.fd, &temp, sizeof(int)); 
 
 			pthread_cancel(t1);	
-			fclose(info.fp);
-			nodelay(stdscr, FALSE);
+			close(info.fd);
 			info.flag = 0;
-			mvprintw(11,10, "please");
-			getch();
 			return info; // 연결 취소
 		}
 		if (info.flag != 0){
 			nodelay(stdscr, FALSE);
-			mvprintw(11,10, "zz");
-			fprintf(info.fp, "%d", 1);
-			refresh();
-			getch();
 			return info;
 		}
-		
-		mvprintw(MULTI_MENU_MATCH_Y + 5, (COLS - strlen("Loading...")) / 2, loading_message[loading_count]);
+		mvprintw(MULTI_MENU_MATCH_Y + 5, (COLS - strlen("Loading...")) / 2, loading_message[loading_index]);
 		refresh();
-		loading_count = (loading_count + 1) % 3;
-		sleep(1);
+		loading_count = (loading_count + 1) % 3000;
+		loading_index = loading_count / 1000;
+		usleep(1000);
 	}
 }
 
@@ -85,18 +79,16 @@ void start_multi_menu(){
 					mvprintw(10,10, "connecting failed");
 				}
 				else if (info.flag == 1){ // 연결 성공
-					//// 테스트용
-					mvprintw(MULTI_MENU_BACK_Y - 1, COLS/2, "connecting success");
-					refresh();
-					getch();
-					////
-					start_multi_game(info.fp);
+					start_multi_game(info.fd);
 					return;
 				}
 				else if (info.flag == 0){ // 연결 취소
-					mvprintw(MULTI_MENU_BACK_Y - 1, COLS/2, "connecting canceld");
+					draw_multi_menu();
+					mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("2. Back")) / 2, "          ");
+					mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("-> Back")) / 2, "-> Back");
+					mvprintw(MULTI_MENU_MATCH_Y, (COLS - strlen("connecting canceled")) / 2, "connecting canceled");
 					refresh();
-					getch();
+					while(getch() != '\n');
 					return;
 				}
 			}
