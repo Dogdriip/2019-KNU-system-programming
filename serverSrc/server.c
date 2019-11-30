@@ -221,8 +221,16 @@ void* multi_screen_communication(void* thr_data){
 		printf("flag 1 : %d, flag2 : %d\n", flag1, flag2);
 		if (flag1 == -1 || flag2 == -1){
 			printf("게임 하나 끝남\n");
+			if (flag1 == -1)
+				write(fd2, &flag1, sizeof(int));
+			if (flag2 == -1)
+				write(fd1, &flag2, sizeof(int));
+			close(fd1);
+			close(fd2);
 			return NULL;
 		}
+		write(fd1, &flag2, sizeof(int));
+		write(fd2, &flag1, sizeof(int));
 
 		printf("fd1 read 시작 ->");
 		fflush(stdout);
