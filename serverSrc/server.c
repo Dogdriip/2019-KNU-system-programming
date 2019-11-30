@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 
 #define PORTNUM_STRING 8181
 #define PORTNUM_SCORE 8281
@@ -92,7 +93,9 @@ void* string_server(void* thread_data){
 
 	bind(sock_id, (struct sockaddr *)&saddr, sizeof(saddr));
 
+	int optval = 1;
 	listen(sock_id, 50);
+	setsockopt(sock_id, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
 	printf("string 서버 대기 시작\n");
 	while(1){
@@ -137,6 +140,8 @@ void* multi_server(void* thread_data){
 	// 쓰레드 detach 옵션 설정
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	int optval = 1;
+	setsockopt(sock_multi_id, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
 	while(1){
 		struct multi_match *thr_data = (struct multi_match*)malloc(sizeof(struct multi_match));
@@ -200,31 +205,48 @@ void* wait_other(void *m){
 void* multi_screen_communication(void* thr_data){
 	multi_match *data = (multi_match*)thr_data;
 	int fd1 = data->fd1, fd2 = data->fd2;
-	char message[100001];
-
+	char message1[500000], message2[500000];
+	int i = 0;
+	
+	int bufsize = 131072;
+	setsockopt(fd1, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize));
+	setsockopt(fd1, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize));
+	setsockopt(fd2, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize));
+	setsockopt(fd2, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize));
+	
 	while(1){
-		int len = 0;
-		int total_len = 0;
+		int total_len1 = 0, total_len2 = 0, len1 = 0, len2 = 0;
 		int flag1 = 0, flag2 = 0; // 게임이 끝났는지 체크
 
-		printf("flag 입력 대기 -> ");
 		read(fd1, &flag1, sizeof(int));
 		read(fd2, &flag2, sizeof(int));
+		printf("flag 1 : %d, flag2 : %d\n", flag1, flag2);
 		if (flag1 == -1 || flag2 == -1){
 			printf("게임 하나 끝남\n");
 			return NULL;
 		}
-		printf("클라이언트1 데이터 입력 대기 ->");
-		read(fd1, &total_len, sizeof(int));
-		read(fd1, message, sizeof(char) * total_len);
-		write(fd2, &total_len, sizeof(int));
-		write(fd2, message, sizeof(char) * total_len);
 
-		printf("클라이언트2 데이터 입력 대기\n");
-		read(fd2, &total_len, sizeof(int));
-		read(fd2, message, sizeof(char) * total_len);
-		write(fd1, &total_len, sizeof(int));
-		write(fd1, message, sizeof(char) * total_len);
+		read(fd1, &total_len1, sizeof(int));
+		len1 = read(fd1, message1, sizeof(char) * total_len1);
+		while(len1 < total_len1){ 
+			printf("%d ", len1);
+			len1 += read(fd1, &message1[len1], sizeof(char) * (total_len1 - len1));}
+		read(fd2, &total_len2, sizeof(int));
+		len2 = read(fd2, message2, sizeof(char) * total_len2);
+		while(len2 < total_len2) 
+			len2 += read(fd1, &message2[len2], sizeof(char) * (total_len2 - len2));
+
+		write(fd1, &total_len2, sizeof(int));
+		write(fd1, message2, sizeof(char) * total_len2);
+		write(fd2, &total_len1, sizeof(int));
+		write(fd2, message1, sizeof(char) * total_len1);
+
+		if (i <= 10){
+			printf("cli1 len, total : %d %d, ",len1, total_len1);
+			printf("cli2 len, total : %d %d \n", len2, total_len2);
+		}
+
+		i++;
 	}
 }
 void* score_server(void* thread_data){
