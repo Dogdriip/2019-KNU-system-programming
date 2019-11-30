@@ -14,10 +14,6 @@ int main(){
 	}
 	draw_main_menu();
 
-	for(int i = 2; i <=12; i++)
-		mvprintw(10+i, 10, "%d", get_string_count(i));
-	refresh();
-
 	while(key != 3){
 		// key) 1: Single, 2: Multi, 3: Exit
 		key = select_main_menu();

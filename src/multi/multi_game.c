@@ -72,6 +72,7 @@ int new_word_c;
 int communication_c;
 int multi_fd;
 int flag_game = 1;
+pthread_mutex_t mutex_lock;
 
 void multi_gameover(){
 	flag_game = -1;
@@ -148,14 +149,16 @@ int multi_set_ticker(int n_msecs) {
     return setitimer(ITIMER_REAL, &new_timeset, NULL);
 }
 
-void multi_communication(){
+void* multi_communication(void* m){
 	char message[1000000];
 
-	FILE *fp_screen = fopen("cache_screen.bin", "wb+");
+	FILE *fp_screen;
 	int total_len = 0, len = 0;
 
+	pthread_mutex_lock(&mutex_lock);
+	fp_screen = fopen("cache_screen.bin", "wb+");
 	if (flag_game == -1)
-		return;
+		return NULL;
 	flag_game = 1;
 	write(multi_fd, &flag_game, sizeof(int)); 
 
@@ -170,14 +173,16 @@ void multi_communication(){
 	write(multi_fd, message, sizeof(char) * total_len); // 서버로 게임 화면을 보냄
 	fclose(fp_screen);
 
-	fp_screen = fopen("cache_screen2.bin", "wb+");;
+	mvprintw(2,1, "total : %d len : %d", total_len, len);
+	refresh();
+
 	read(multi_fd, &total_len, sizeof(int)); // 서버로부터 총 길이를 받음
 	len = read(multi_fd, message, sizeof(char) * total_len); // 서버로부터 화면을 받음
 	while(len < total_len) 
 		len += read(multi_fd, &message[len], sizeof(char) * (total_len - len));
-	mvprintw(2,1, "total : %d len : %d", total_len, len);
-	refresh();
-
+	pthread_mutex_unlock(&mutex_lock);
+	
+	fp_screen = fopen("cache_screen2.bin", "wb+");;
 	fwrite(message, sizeof(char) * total_len, 1, fp_screen);
 	fflush(fp_screen);
 	fseek(fp_screen, 0, SEEK_SET);
@@ -222,53 +227,12 @@ void multi_trigger() {
 	if (communication_c == 0){
 		// 스크린 송수신
 
-		multi_communication();
+		pthread_t t1;
+		pthread_create(&t1, NULL, multi_communication, NULL);
+		pthread_detach(t1);
 
 		communication_c = MULTI_INIT_COMMUNICATION_C;
 
-		/*FILE *fp_screen = fopen("cache_screen.bin", "wb+");
-		int total_len = 0, len = 0;
-
-		if (flag_game == -1)
-			return;
-		flag_game = 1;
-		write(multi_fd, &flag_game, sizeof(int)); 
-
-		putwin(game_win, fp_screen);
-		fseek(fp_screen, 0, SEEK_SET);
-
-		total_len = fread(message, sizeof(char), 100000, fp_screen); // 파일로부터 데이터를 읽어옴
-		while(!feof(fp_screen))
-			total_len += fread(&message[total_len], sizeof(char), 100000, fp_screen);
-
-		mvprintw(1,1, "%d", total_len);
-		write(multi_fd, &total_len, sizeof(int)); // 서버에 총길이를 보냄
-		write(multi_fd, message, sizeof(char) * total_len); // 서버로 게임 화면을 보냄
-		fclose(fp_screen);
-
-		total_len = 0;
-		fp_screen = fopen("cache_screen2.bin", "wb+");;
-		read(multi_fd, &total_len, sizeof(int)); // 서버로부터 총 길이를 받음
-		len = read(multi_fd, message, sizeof(char) * total_len); // 서버로부터 화면을 받음
-		while(len < total_len) 
-			len += read(multi_fd, &message[len], sizeof(char) * (total_len - len));
-		mvprintw(2,1, "total : %d len : %d", total_len, len);
-		refresh();
-
-		fwrite(message, sizeof(char) * total_len, 1, fp_screen);
-		fflush(fp_screen);
-		fseek(fp_screen, 0, SEEK_SET);
-
-		fclose(fp_screen);
-		
-		wclear(other_win);
-		wrefresh(other_win);
-		mvwin(other_win, MULTI_GAME_WIN_Y, MULTI_GAME_WIN_X);
-		overwrite(getwin(fp_screen), other_win);
-		mvwin(other_win, MULTI_OTHER_WIN_Y, MULTI_OTHER_WIN_X);
-		wrefresh(other_win);
-		fclose(fp_screen);*/
-		
 	}
 
 }
@@ -325,6 +289,7 @@ void start_multi_game(int fd) {
     echo();
 
     multi_prepare_windows();
+	pthread_mutex_init(&mutex_lock, NULL);
 
     multi_init_game();
     multi_init_timer();
