@@ -14,10 +14,6 @@ int main(){
 	}
 	draw_main_menu();
 
-	mvprintw(10, 10, "row : %d, col : %d", LINES, COLS);
-	refresh();
-	getch();
-
 	while(key != 3){
 		// key) 1: Single, 2: Multi, 3: Exit
 		key = select_main_menu();
