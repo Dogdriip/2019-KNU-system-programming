@@ -61,7 +61,7 @@ int init_program(){
 	srand((long)time(NULL));
 	keypad(stdscr, TRUE);
 
-	if (string_init(1) == -1){ // 0이면 서버에서, 1이면 로컬에서
+	if (string_init(0) == -1){ // 0이면 서버에서, 1이면 로컬에서
 		clear();
 		mvprintw(LINES/2, COLS/2 - 10, "game error. please restart");
 		return -1;

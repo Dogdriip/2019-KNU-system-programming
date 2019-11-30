@@ -75,6 +75,8 @@ int flag_game = 1;
 
 void multi_gameover(){
 	flag_game = -1;
+	write(multi_fd, &flag_game, sizeof(int));
+	close(multi_fd);
 }
 
 void multi_drop_word(node* header) {
@@ -110,20 +112,21 @@ void multi_add_new_word(node* header) {
     strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
     
     tmp = multi_get_node(word, 2, (rand() % MULTI_GAME_WIN_WIDTH) + MULTI_GAME_WIN_X);
-    multi_insert_node(list_header->llink, tmp);
+	
+	multi_insert_node(list_header->llink, tmp);
 }
 
-void multi_input_handler(node* header, char str[]) {
-    node* curr;
-    node* temp;
-    for (curr = header->rlink; curr != header; curr = curr->rlink) {
-        if (!strcmp(curr->word, str)) { 
-            // 그 노드 삭제
-            temp = curr->llink;
-            multi_delete_node(header, curr);
-            curr = temp;
+void multi_input_handler(node *header, char str[]){
+	node* curr;
+	node* temp;
+	for (curr = header->rlink; curr != header; curr = curr->rlink){
+		if (!strcmp(curr->word, str)){
 
-            // 삭제 후 화면 갱신 한번 필요
+			temp = curr->llink;
+			multi_delete_node(header, curr);
+			curr = temp;
+
+            //tructive 삭제 후 화면 갱신 한번 필요
             multi_update_game_win(header);
 
             return;
@@ -145,21 +148,58 @@ int multi_set_ticker(int n_msecs) {
     return setitimer(ITIMER_REAL, &new_timeset, NULL);
 }
 
+void multi_communication(){
+	char message[1000000];
+
+	FILE *fp_screen = fopen("cache_screen.bin", "wb+");
+	int total_len = 0, len = 0;
+
+	if (flag_game == -1)
+		return;
+	flag_game = 1;
+	write(multi_fd, &flag_game, sizeof(int)); 
+
+	putwin(game_win, fp_screen);
+	fseek(fp_screen, 0, SEEK_SET);
+
+	total_len = fread(message, sizeof(char), 100000, fp_screen); // 파일로부터 데이터를 읽어옴
+	while(!feof(fp_screen))
+		total_len += fread(&message[total_len], sizeof(char), 100000, fp_screen);
+
+	write(multi_fd, &total_len, sizeof(int)); // 서버에 총길이를 보냄
+	write(multi_fd, message, sizeof(char) * total_len); // 서버로 게임 화면을 보냄
+	fclose(fp_screen);
+
+	fp_screen = fopen("cache_screen2.bin", "wb+");;
+	read(multi_fd, &total_len, sizeof(int)); // 서버로부터 총 길이를 받음
+	len = read(multi_fd, message, sizeof(char) * total_len); // 서버로부터 화면을 받음
+	while(len < total_len) 
+		len += read(multi_fd, &message[len], sizeof(char) * (total_len - len));
+	mvprintw(2,1, "total : %d len : %d", total_len, len);
+	refresh();
+
+	fwrite(message, sizeof(char) * total_len, 1, fp_screen);
+	fflush(fp_screen);
+	fseek(fp_screen, 0, SEEK_SET);
+
+	wclear(other_win);
+	wrefresh(other_win);
+	mvwin(other_win, MULTI_GAME_WIN_Y, MULTI_GAME_WIN_X);
+	overwrite(getwin(fp_screen), other_win);
+	mvwin(other_win, MULTI_OTHER_WIN_Y, MULTI_OTHER_WIN_X);
+	wrefresh(other_win);
+	fclose(fp_screen);
+}
+
 void multi_trigger() {
     // 매 trigger마다 변수 갱신
     elapsed_time += CLOCK_INTERVAL;
     word_drop_c -= CLOCK_INTERVAL;
     new_word_c -= CLOCK_INTERVAL;
 	communication_c -= CLOCK_INTERVAL;
-	char message[1000000];
-
-
-    // info_win에 정보 갱신 (LIFE, SCORE)
-    //update_info_win(remain_life, elapsed_time);
 
     // 각 window를 refresh
     wrefresh(game_win);
-    wrefresh(other_win);
     wrefresh(typing_win);
     // typing window는 refresh하면 안 되는 것 아닌가?
 
@@ -168,7 +208,7 @@ void multi_trigger() {
         multi_drop_word(list_header);
         multi_update_game_win(list_header);
 
-        word_drop_c = WORD_DROP_C_INIT;
+        word_drop_c = WORD_DROP_C_INIT + 1000;
     }
 
     if (new_word_c == 0) {
@@ -176,14 +216,22 @@ void multi_trigger() {
         multi_add_new_word(list_header);
         multi_update_game_win(list_header);
 
-        new_word_c = NEW_WORD_C_INIT;
+        new_word_c = NEW_WORD_C_INIT+ 1000;
     }
 
-	if (communication_c <= 0){
+	if (communication_c == 0){
 		// 스크린 송수신
-		FILE *fp_screen = fopen("cache_screen.bin", "wb+");
-		int total_len = 0;
 
+		multi_communication();
+
+		communication_c = MULTI_INIT_COMMUNICATION_C;
+
+		/*FILE *fp_screen = fopen("cache_screen.bin", "wb+");
+		int total_len = 0, len = 0;
+
+		if (flag_game == -1)
+			return;
+		flag_game = 1;
 		write(multi_fd, &flag_game, sizeof(int)); 
 
 		putwin(game_win, fp_screen);
@@ -193,25 +241,36 @@ void multi_trigger() {
 		while(!feof(fp_screen))
 			total_len += fread(&message[total_len], sizeof(char), 100000, fp_screen);
 
+		mvprintw(1,1, "%d", total_len);
 		write(multi_fd, &total_len, sizeof(int)); // 서버에 총길이를 보냄
-		write(multi_fd, message, total_len); // 서버로 게임 화면을 보냄
+		write(multi_fd, message, sizeof(char) * total_len); // 서버로 게임 화면을 보냄
 		fclose(fp_screen);
 
-		fp_screen = fopen("cache_screen.bin", "wb+");;
+		total_len = 0;
+		fp_screen = fopen("cache_screen2.bin", "wb+");;
 		read(multi_fd, &total_len, sizeof(int)); // 서버로부터 총 길이를 받음
-		read(multi_fd, message, sizeof(char) * total_len); // 서버로부터 화면을 받음
+		len = read(multi_fd, message, sizeof(char) * total_len); // 서버로부터 화면을 받음
+		while(len < total_len) 
+			len += read(multi_fd, &message[len], sizeof(char) * (total_len - len));
+		mvprintw(2,1, "total : %d len : %d", total_len, len);
+		refresh();
 
 		fwrite(message, sizeof(char) * total_len, 1, fp_screen);
+		fflush(fp_screen);
 		fseek(fp_screen, 0, SEEK_SET);
 
+		fclose(fp_screen);
+		
 		wclear(other_win);
+		wrefresh(other_win);
 		mvwin(other_win, MULTI_GAME_WIN_Y, MULTI_GAME_WIN_X);
 		overwrite(getwin(fp_screen), other_win);
 		mvwin(other_win, MULTI_OTHER_WIN_Y, MULTI_OTHER_WIN_X);
 		wrefresh(other_win);
-
-		communication_c = MULTI_INIT_COMMUNICATION_C;
+		fclose(fp_screen);*/
+		
 	}
+
 }
 
 void multi_init_timer() {
@@ -274,7 +333,7 @@ void start_multi_game(int fd) {
 	pthread_create(&thr_input, NULL, input_func, NULL);
 
 	while(flag_game != -1)
-		pause();
+		sleep(1);
 
 	pthread_cancel(thr_input);
     

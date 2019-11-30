@@ -51,6 +51,7 @@ multi_info connecting(){
 			return info; // 연결 취소
 		}
 		if (info.flag != 0){
+			pthread_join(t1, NULL);
 			nodelay(stdscr, FALSE);
 			return info;
 		}
@@ -79,6 +80,9 @@ void start_multi_menu(){
 					mvprintw(10,10, "connecting failed");
 				}
 				else if (info.flag == 1){ // 연결 성공
+					int bufsize = 131072;
+					setsockopt(info.fd, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize));
+					setsockopt(info.fd, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize));
 					start_multi_game(info.fd);
 					return;
 				}

@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include "../util/string.h"
 #include "../single/endless.h"
 

@@ -6,7 +6,7 @@ FILE* fp_score = NULL; // score server와 소통하는 파일 디스크립터
 void* multi_connection(void* m){
 	struct sockaddr_in servadd;
 	struct hostent *hp;
-	char message[BUFSIZ], *msg_loading = "loading", *msg_match = "match11";
+	char message[BUFSIZ]="", *msg_loading = "loading", *msg_match = "match11";
 	int row, col;
 	multi_info *info = (multi_info*)m; // 연결 제대로 되면 1, 안되면 -1
 
@@ -38,10 +38,11 @@ void* multi_connection(void* m){
 	// 연결 성공하면, loading or match.
 	// loading은 다른 클라이언트를 기다리는 상태.
 	// match는 잡힌 상태
-	read(info->fd, message, (strlen(msg_loading) + 1) * sizeof(char));
-	if (strcmp(message, "loading") == 0){
-		read(info->fd, message, (strlen(msg_match) + 1) * sizeof(char));
-
+	//read(info->fd, info->message, (strlen(msg_loading) + 1)* sizeof(char));
+	read(info->fd, info->message, (20)* sizeof(char));
+	if (strcmp(info->message, "loading") == 0){
+		//read(info->fd, info->message, (strlen(msg_match) + 1) * sizeof(char));
+		read(info->fd, info->message, (20) * sizeof(char));
 		int temp = 1;
 		write(info->fd, &temp, sizeof(int));
 	}
