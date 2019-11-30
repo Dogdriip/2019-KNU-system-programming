@@ -7,9 +7,9 @@
 
 
 // 게임플레이 관련
-#define LIFE_INIT 1
+#define LIFE_INIT 5
 #define CLOCK_INTERVAL 100
-#define WORD_DROP_C_INIT 100
+#define WORD_DROP_C_INIT 300
 #define NEW_WORD_C_INIT 500
 
 

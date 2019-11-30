@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <errno.h>
 #include <stdio.h>
 #include <signal.h>
 #include <curses.h>
@@ -26,6 +27,6 @@
 #define MULTI_OTHER_WIN_Y GAME_SCR_PADDING
 #define MULTI_OTHER_WIN_X GAME_SCR_PADDING + MULTI_GAME_WIN_WIDTH
 
-#define MULTI_INIT_COMMUNICATION_C 1000
+#define MULTI_INIT_COMMUNICATION_C 200
 
 void start_multi_game(int);
