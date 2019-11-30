@@ -140,8 +140,6 @@ void* multi_server(void* thread_data){
 	// 쓰레드 detach 옵션 설정
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	int optval = 1;
-	setsockopt(sock_multi_id, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
 	while(1){
 		struct multi_match *thr_data = (struct multi_match*)malloc(sizeof(struct multi_match));
@@ -226,21 +224,28 @@ void* multi_screen_communication(void* thr_data){
 			return NULL;
 		}
 
+		printf("fd1 read 시작 ->");
+		fflush(stdout);
 		read(fd1, &total_len1, sizeof(int));
 		len1 = read(fd1, message1, sizeof(char) * total_len1);
-		while(len1 < total_len1){ 
-			printf("%d ", len1);
-			len1 += read(fd1, &message1[len1], sizeof(char) * (total_len1 - len1));}
+		while(len1 < total_len1)
+			len1 += read(fd1, &message1[len1], sizeof(char) * (total_len1 - len1));
+
+		printf("fd2 read 시작 ->");
+		fflush(stdout);
 		read(fd2, &total_len2, sizeof(int));
 		len2 = read(fd2, message2, sizeof(char) * total_len2);
 		while(len2 < total_len2) 
-			len2 += read(fd1, &message2[len2], sizeof(char) * (total_len2 - len2));
+			len2 += read(fd2, &message2[len2], sizeof(char) * (total_len2 - len2));
 
+		printf("Write 시작 -> ");
+		fflush(stdout);
 		write(fd1, &total_len2, sizeof(int));
 		write(fd1, message2, sizeof(char) * total_len2);
 		write(fd2, &total_len1, sizeof(int));
 		write(fd2, message1, sizeof(char) * total_len1);
 
+		printf("Write 끝\n");
 		if (i <= 10){
 			printf("cli1 len, total : %d %d, ",len1, total_len1);
 			printf("cli2 len, total : %d %d \n", len2, total_len2);
