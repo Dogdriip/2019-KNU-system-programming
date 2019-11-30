@@ -1,1 +1,3 @@
 *.o
+battle_typing
+cache_*
