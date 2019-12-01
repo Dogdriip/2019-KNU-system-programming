@@ -30,7 +30,6 @@ typedef struct multi_match{
 
 char string[MAX_STRING_LENGTH + 1][MAX_STRING_COUNT][MAX_STRING_LENGTH + 1];
 int string_count[MAX_STRING_LENGTH + 1];
-FILE *sock_score_fp = NULL;
 int sock_multi_id;
 
 
@@ -41,8 +40,8 @@ void* multi_screen_communication(void*);
 void* wait_other(void*);
 
 void save_score(struct Score score);
-void receive_score();
-void send_score();
+void receive_score(int);
+void send_score(int);
 void* score_server(void*);
 
 int main(){
@@ -59,7 +58,7 @@ int main(){
 void* string_server(void* thread_data){
 	char strbuf[20];
 
-	FILE *fp = fopen("word.txt", "r");
+	FILE *fp = fopen("resource/word.txt", "r");
 
 	fscanf(fp, "%s", strbuf);
 	while(!feof(fp)){
@@ -218,7 +217,6 @@ void* multi_screen_communication(void* thr_data){
 
 		read(fd1, &flag1, sizeof(int));
 		read(fd2, &flag2, sizeof(int));
-		printf("flag 1 : %d, flag2 : %d\n", flag1, flag2);
 		if (flag1 == -1 || flag2 == -1){
 			printf("게임 하나 끝남\n");
 			if (flag1 == -1)
@@ -232,34 +230,20 @@ void* multi_screen_communication(void* thr_data){
 		write(fd1, &flag2, sizeof(int));
 		write(fd2, &flag1, sizeof(int));
 
-		printf("fd1 read 시작 ->");
-		fflush(stdout);
 		read(fd1, &total_len1, sizeof(int));
 		len1 = read(fd1, message1, sizeof(char) * total_len1);
 		while(len1 < total_len1)
 			len1 += read(fd1, &message1[len1], sizeof(char) * (total_len1 - len1));
 
-		printf("fd2 read 시작 ->");
-		fflush(stdout);
 		read(fd2, &total_len2, sizeof(int));
 		len2 = read(fd2, message2, sizeof(char) * total_len2);
 		while(len2 < total_len2) 
 			len2 += read(fd2, &message2[len2], sizeof(char) * (total_len2 - len2));
 
-		printf("Write 시작 -> ");
-		fflush(stdout);
 		write(fd1, &total_len2, sizeof(int));
 		write(fd1, message2, sizeof(char) * total_len2);
 		write(fd2, &total_len1, sizeof(int));
 		write(fd2, message1, sizeof(char) * total_len1);
-
-		printf("Write 끝\n");
-		if (i <= 10){
-			printf("cli1 len, total : %d %d, ",len1, total_len1);
-			printf("cli2 len, total : %d %d \n", len2, total_len2);
-		}
-
-		i++;
 	}
 }
 void* score_server(void* thread_data){
@@ -291,41 +275,41 @@ void* score_server(void* thread_data){
 		sock_fd = accept(sock_id, NULL, NULL);
 		if (sock_fd == -1)
 			oops("accept");
-		printf("accept 완료\n");
-		sock_score_fp = fdopen(sock_fd, "w+");
 
-		printf("receive 시작\n");
-		receive_score();
-		printf("receive 완료\n");
+		printf("[score server] score receive start\n");
+		receive_score(sock_fd);
 
-		printf("send 시작\n");
-		send_score();
-		printf("send 완료\n");
+		printf("[score server] score board send start\n");
+		send_score(sock_fd);
 	
-		fclose(sock_score_fp);
-		printf("socket close\n");
+		close(sock_fd);
+		printf("[score server] socket close\n");
 	}
 }
 // sock_fd와 연결된 클라이언트에게 score_board를 보냄
-void send_score(){
+void send_score(int sock_fd){
 	FILE *fp = fopen("resource/score.txt", "r");
 	struct Score score;
 	int len_score_board = 0;
 
 	fscanf(fp, "%d", &len_score_board);
+	write(sock_fd, &len_score_board, sizeof(int));
 	for(int i = 0; i < len_score_board; i++){
 		fscanf(fp, "%s %d", score.name, &(score.score));
-		fprintf(sock_score_fp, "%s %d\n", score.name, score.score);
+		write(sock_fd, score.name, sizeof(char) * 4);
+		write(sock_fd, &(score.score), sizeof(int));
+		printf("%s %d, ", score.name, score.score);
 	}
 
 	fclose(fp);
 }
 
 // sock_fd와 연결된 클라이언트로부터 name과 score를 받아옴.
-void receive_score(){
+void receive_score(int sock_fd){
 	struct Score score;
 
-	fscanf(sock_score_fp, "%s %d", score.name, &(score.score));
+	read(sock_fd, score.name, sizeof(char) * 4);
+	read(sock_fd, &(score.score), sizeof(int));
 	printf("%s %d\n", score.name,score.score);
 
 	save_score(score);
