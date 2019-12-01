@@ -2,4 +2,4 @@
 
 #include "single.h"
 
-void single_endless_game();
+int single_endless_game();

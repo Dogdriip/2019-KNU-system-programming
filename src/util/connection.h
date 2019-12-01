@@ -19,15 +19,15 @@
 void* multi_connection(void* m);
 
 // 점수를 서버로 보낸다. score : 점수(초단위), name : 이름
-void send_score(int score, char *name);
+int send_score(int socket_id, int score, char *name);
 
 // 서버로부터 점수를 받아옴. 상위 10등까지의 점수를 받아온다.
 // score 배열과 name 배열에 각각 점수와 이름이 들어감.
 // index : 0부터 시작 
-int receive_score(int score[], char name[][4]);
+int receive_score(int socket_id, int score[], char name[][4]);
 
 // score server를 열어줌
-void open_score_server();
+int open_score_server();
 
 // score server를 닫아줌
 void close_score_server();

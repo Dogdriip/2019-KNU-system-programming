@@ -104,12 +104,9 @@ void gameover() {
     wprintw(gameover_win, gameover_str);
 
     wmove(gameover_win, GAMEOVER_WIN_Y + 8, GAMEOVER_WIN_X + 50);
-    wprintw(gameover_win, "SCORE : %d", elapsed_time);
+    wprintw(gameover_win, "SCORE : %d", elapsed_time / 1000);
 
     wrefresh(gameover_win);
-
-    // TODO: 이름 입력
-    // getch();
 
     // 종료 조건: flag를 false로
     FLAG = 0;
@@ -195,7 +192,7 @@ void trigger() {
     new_word_c -= CLOCK_INTERVAL;
 
     // info_win에 정보 갱신 (LIFE, SCORE)
-    update_info_win(remain_life, elapsed_time);
+    update_info_win(remain_life, elapsed_time / 1000);
 
     // 각 window를 refresh
     wrefresh(game_win);
@@ -240,7 +237,7 @@ void init_game() {
 
 //////////////////////////////////////////////////////////////
 // main game logic
-void single_endless_game() {
+int single_endless_game() {
     char input_str[40];
     int input_len = 0;
     int i;
@@ -274,4 +271,20 @@ void single_endless_game() {
         input_handler(list_header, input_str);
     }
 
+	wclear(gameover_win);
+    wclear(game_win);
+    wclear(info_win);
+    wclear(typing_win);
+
+	wrefresh(gameover_win);
+    wrefresh(game_win);
+    wrefresh(info_win);
+    wrefresh(typing_win);
+
+	delwin(gameover_win);
+	delwin(game_win);
+	delwin(typing_win);
+	delwin(info_win);
+
+	return elapsed_time / 1000;
 }

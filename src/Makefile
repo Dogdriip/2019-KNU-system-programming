@@ -1,4 +1,4 @@
-battle_typing: main_menu.o single_menu.o string.o endless.o connection.o multi_menu.o multi_game.o
+battle_typing: main_menu.o single_menu.o string.o endless.o connection.o multi_menu.o multi_game.o single_gameover.o
 	gcc -o battle_typing *.o -lcurses -pthread
 
 main_menu.o: main_menu.h main_menu.c
@@ -21,6 +21,9 @@ string.o: util/string.c util/string.h
 
 endless.o: single/endless.c single/endless.h
 	gcc -c -o endless.o single/endless.c
+
+single_gameover.o: single/single_gameover.c single/single_gameover.h
+	gcc -c -o single_gameover.o single/single_gameover.c
 
 #time_attack.o: single/time_attack.c single/time_attack.h
 #	gcc -c -o time_attack.o single/time_attack.c

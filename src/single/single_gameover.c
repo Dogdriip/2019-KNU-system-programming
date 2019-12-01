@@ -1,66 +1,12 @@
-#include "single_menu.h"
+#include "single_gameover.h"
 
-// 메뉴는 기본 strscr에 그린당.
-void start_single_menu(){
-	int key = 0;
+void process_score(int elapsed_time){
+	char name[4] = "";
+	int char_pos[3] = {0};
+	int key = 0, pos = 0;
+	int score_board[10];
+	char name_board[10][4];
 
-	draw_single_menu();
-
-	while(1){
-		key = select_single_menu();
-		
-		if (key == 1){
-			// endless
-			int score = single_endless_game();
-			process_score(score);
-
-			return;
-		}
-		else if (key == 2){
-			// time attack
-			// single_time_attack_mode();
-			return;
-		}
-		else{
-			return;
-		}
-	}
-}
-
-// 방향키를 통해 메뉴를 선택할 수 있도록 함.
-int select_single_menu(){
-	int key = 0; // 누른 키
-	int pos = 0; // 현재 '->'커서 위치. 범위는 0,1,2.  0은 싱글, 1은 멀티, 2는 Quit. return할 때 1 더해서 리턴
-	int x[3] = {(COLS - strlen("1. ENDLESS")) / 2, (COLS - strlen("2. TIME ATTACK")) / 2, (COLS - strlen("3. Back")) / 2};
-	int y[3] = {SINGLE_MENU_ENDLESS_Y, SINGLE_MENU_TIMEATTACK_Y, SINGLE_MENU_BACK_Y};
-
-	while(1){
-		mvprintw(y[pos], x[pos]-3,"->"); 
-		refresh();
-
-		key = getch();
-		if (key == KEY_UP){
-			mvprintw(y[pos], x[pos] - 3, "  ");
-			if (pos > 0)
-				pos--;
-		}
-		else if (key == KEY_DOWN){
-			mvprintw(y[pos], x[pos] - 3, "  ");
-			if (pos < 2)
-				pos++;
-		}
-		else if (key == '\n'){
-			mvprintw(y[pos], x[pos] - 3, "  ");
-			return pos + 1;
-		}
-	}
-}
-
-// 이전에 strscr에 그려진 모든 것을 지우고, Single Game 선택 메뉴를 그림
-void draw_single_menu(){
-	clear();
-
-	// 메뉴 테두리 구현...
 	for(int i = MENU_INTERVAL; i < COLS - MENU_INTERVAL; i++)
 		mvaddch(MENU_INTERVAL, i, '*');
 	for(int i = MENU_INTERVAL; i < COLS - MENU_INTERVAL; i++)
@@ -69,6 +15,7 @@ void draw_single_menu(){
 		mvaddch(i, MENU_INTERVAL, '*');
 	for(int i = MENU_INTERVAL; i < LINES - MENU_INTERVAL; i++)
 		mvaddch(i, COLS - MENU_INTERVAL, '*');
+
 
 	mvprintw(MENU_TITLE_Y, (COLS - strlen(" /$$$$$$$              /$$     /$$     /$$                 /$$$$$$$$                  /$$                    ")) / 2, " /$$$$$$$              /$$     /$$     /$$                 /$$$$$$$$                  /$$                    ");         
 	mvprintw(MENU_TITLE_Y+1, (COLS - strlen("| $$__  $$            | $$    | $$    | $$                |__  $$__/                 |__/                    "))/2, "| $$__  $$            | $$    | $$    | $$                |__  $$__/                 |__/                    "); 
@@ -82,9 +29,67 @@ void draw_single_menu(){
 	mvprintw(MENU_TITLE_Y+9, (COLS - strlen("                                                                 |  $$$$$$/| $$                    |  $$$$$$/"))/2, "                                                                 |  $$$$$$/| $$                    |  $$$$$$/");
 	mvprintw(MENU_TITLE_Y+10, (COLS - strlen("                                                                  \\______/ |__/                     \\______/ "))/2, "                                                                  \\______/ |__/                     \\______/ ");
 
-	mvprintw(SINGLE_MENU_ENDLESS_Y, (COLS - strlen("1. ENDLESS")) / 2, "1. ENDLESS");
-	mvprintw(SINGLE_MENU_TIMEATTACK_Y, (COLS - strlen("2. TIME ATTACK")) / 2, "2. TIME ATTACK");
-	mvprintw(SINGLE_MENU_BACK_Y, (COLS - strlen("3. Back")) / 2, "3. Back");
+
+	while(1){
+		for(int i = 0; i <= 2; i++){
+			for(int j = -2; j <= 2; j++){
+				if (j == 0)
+					mvprintw(LINES / 2 - 1 + i, COLS / 2, "%c", char_pos[i] + 'A');
+				else
+					mvprintw(LINES / 2 - 1 + i, COLS / 2 + j, " ");
+			}
+		}
+		mvprintw(LINES / 2 - 1 + pos, COLS / 2 - 2, "<-");
+		mvprintw(LINES / 2 - 1 + pos, COLS / 2 + 1, "->");
+
+		refresh();
+
+		key = getch();
+		if (key == '\n')
+			break;
+		else if (key == KEY_UP){
+			pos--;
+			if (pos < 0)
+				pos = 0;
+		}
+		else if (key == KEY_DOWN){
+			pos++;
+			if (pos > 2)
+				pos = 2;
+		}
+		else if (key == KEY_LEFT){
+			char_pos[pos]--;
+			if (char_pos[pos] < 0)
+				char_pos[pos] = 0;
+		}
+		else if (key == KEY_RIGHT){
+			char_pos[pos]++;
+			if (char_pos[pos] > 25)
+				char_pos[pos] = 25;
+		}
+	}
+	
+	for(int i = 0; i < 3; i++)
+		name[i] = char_pos[i] + 'A';
+
+	int socket_id = open_score_server();
+
+	if (send_score(socket_id, elapsed_time, name) == -1)
+		return;
+
+	int len = receive_score(socket_id, score_board, name_board);
+	if (len == -1)
+		return;
+
+	for(int i = -1; i <= 1; i++)
+		mvprintw(LINES / 2 + i, COLS / 2 - 2, "     ");
+
+	mvprintw(LINES / 2, (COLS - strlen("Score Board")) / 2, "Score Board");
+	for(int i = 0; i < len; i++)
+		mvprintw(LINES / 2 + 1 + i, COLS / 2 - 4, "%s : %d",name_board[i], score_board[i]);
+	mvprintw(LINES / 2 + 12, (COLS - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
 
 	refresh();
+	getch();
+
 }
