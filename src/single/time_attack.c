@@ -50,11 +50,13 @@ void prepare_windows() {
     box(typing_win, '*', '*');
 }
 
-void update_info_win(int life, int score) {
-    wmove(info_win, 2, 2);
+void update_info_win(int life, int score, int level) {
+    wmove(info_win, 4, 6);
     wprintw(info_win, "LIFE: %d", life);
-    wmove(info_win, 3, 2);
+    wmove(info_win, 6, 6);
     wprintw(info_win, "SCORE: %d", score);
+    wmove(info_win, 8, 6);
+    wprintw(info_win, "LEVEL: %d", level);
 }
 
 void update_game_win(node* header) {
@@ -78,6 +80,13 @@ int elapsed_time;
 int remain_life;
 int word_drop_c;
 int new_word_c;
+int level_up_c;
+int hide_levelup_c;
+
+// 난이도에 따라 값이 바뀌어야 하므로 변수에 저장
+int word_drop_c_interval;
+int new_word_c_interval;
+int level_up_cnt;
 
 void gameover() {
     signal(SIGALRM, SIG_IGN);
@@ -104,12 +113,9 @@ void gameover() {
     wprintw(gameover_win, gameover_str);
 
     wmove(gameover_win, GAMEOVER_WIN_Y + 8, GAMEOVER_WIN_X + 50);
-    wprintw(gameover_win, "SCORE : %d", elapsed_time);
+    wprintw(gameover_win, "SCORE : %d", elapsed_time / 1000);
 
     wrefresh(gameover_win);
-
-    // TODO: 이름 입력
-    // getch();
 
     // 종료 조건: flag를 false로
     FLAG = 0;
@@ -147,9 +153,45 @@ void add_new_word(node* header) {
 
     strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
     
-    // TODO: 버그. 수정해야 함.
     tmp = get_node(word, 2, (rand() % (GAME_WIN_WIDTH - MAX_STRING_LENGTH - 3) + GAME_WIN_X + 1));
     insert_node(list_header->llink, tmp);
+}
+
+void hide_levelup() {
+    wmove(info_win, 16, 12);
+    wprintw(info_win, "                ");
+    wmove(info_win, 17, 12);
+    wprintw(info_win, "                ");
+    wmove(info_win, 18, 12);
+    wprintw(info_win, "                ");
+    wmove(info_win, 19, 12);
+    wprintw(info_win, "                ");
+    wmove(info_win, 20, 12);
+    wprintw(info_win, "                ");
+    wrefresh(info_win);
+}
+
+void adjust_level(int level_up_cnt) {
+    // if (level_up_cnt > 10) return;
+    word_drop_c_interval -= 50;
+    new_word_c_interval -= 50;
+
+    word_drop_c = word_drop_c_interval;
+    new_word_c = new_word_c_interval;
+
+    wmove(info_win, 16, 12);
+    wprintw(info_win, "****************");
+    wmove(info_win, 17, 12);
+    wprintw(info_win, "*              *");
+    wmove(info_win, 18, 12);
+    wprintw(info_win, "*  LEVEL UP!!  *", level_up_cnt, level_up_cnt + 1);
+    wmove(info_win, 19, 12);
+    wprintw(info_win, "*              *");
+    wmove(info_win, 20, 12);
+    wprintw(info_win, "****************");
+    wrefresh(info_win);
+
+    hide_levelup_c = 2000;
 }
 
 void input_handler(node* header, char str[]) {
@@ -193,9 +235,11 @@ void trigger() {
     elapsed_time += CLOCK_INTERVAL;
     word_drop_c -= CLOCK_INTERVAL;
     new_word_c -= CLOCK_INTERVAL;
+    level_up_c -= CLOCK_INTERVAL;
+    hide_levelup_c -= CLOCK_INTERVAL;
 
     // info_win에 정보 갱신 (LIFE, SCORE)
-    update_info_win(remain_life, elapsed_time);
+    update_info_win(remain_life, elapsed_time / 1000, level_up_cnt);
 
     // 각 window를 refresh
     wrefresh(game_win);
@@ -203,27 +247,39 @@ void trigger() {
     wrefresh(typing_win);
     // typing window는 refresh하면 안 되는 것 아닌가?
 
-    if (word_drop_c == 0) {
+    if (word_drop_c <= 0) {
         // word_drop_c마다 word drop 후 game_win update 필요
         drop_word(list_header);
         update_game_win(list_header);
 
-        word_drop_c = WORD_DROP_C_INIT;
+        word_drop_c = word_drop_c_interval;
     }
 
-    if (new_word_c == 0) {
+    if (new_word_c <= 0) {
         // 새 단어 추가 필요
         add_new_word(list_header);
         update_game_win(list_header);
 
-        new_word_c = NEW_WORD_C_INIT;
+        new_word_c = new_word_c_interval;
+    }
+
+    if (level_up_c <= 0) {
+        // 난이도 증가
+        adjust_level(level_up_cnt++);
+
+        level_up_c = LEVEL_UP_C_INIT;
+    }
+
+    if (hide_levelup_c == 0) {  // must be equal
+        hide_levelup();
     }
 }
 
 void init_timer() {
     elapsed_time = 0;
-    word_drop_c = WORD_DROP_C_INIT;
-    new_word_c = NEW_WORD_C_INIT;
+    word_drop_c = word_drop_c_interval = WORD_DROP_C_INIT;
+    new_word_c = new_word_c_interval = NEW_WORD_C_INIT;
+    level_up_c = LEVEL_UP_C_INIT;
 
     set_ticker(CLOCK_INTERVAL);
     signal(SIGALRM, trigger);
@@ -240,7 +296,7 @@ void init_game() {
 
 //////////////////////////////////////////////////////////////
 // main game logic
-void single_time_attack_mode() {
+int single_time_attack_game() {
     char input_str[40];
     int input_len = 0;
     int i;
@@ -274,4 +330,20 @@ void single_time_attack_mode() {
         input_handler(list_header, input_str);
     }
 
+	wclear(gameover_win);
+    wclear(game_win);
+    wclear(info_win);
+    wclear(typing_win);
+
+	wrefresh(gameover_win);
+    wrefresh(game_win);
+    wrefresh(info_win);
+    wrefresh(typing_win);
+
+	delwin(gameover_win);
+	delwin(game_win);
+	delwin(typing_win);
+	delwin(info_win);
+
+	return elapsed_time / 1000;
 }

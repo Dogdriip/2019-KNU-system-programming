@@ -26,7 +26,7 @@ single_gameover.o: single/single_gameover.c single/single_gameover.h
 	gcc -c -o single_gameover.o single/single_gameover.c
 
 time_attack.o: single/time_attack.c single/time_attack.h
-	gcc -c -o $@ single/time_attack.c
+	gcc -c -o time_attack.o single/time_attack.c
 
 clean:
 	rm *.o
