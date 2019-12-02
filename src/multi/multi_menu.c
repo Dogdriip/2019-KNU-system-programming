@@ -108,12 +108,6 @@ void start_multi_menu(){
 				}
 				else if (info.flag == 0){ // 연결 취소
 					draw_multi_menu();
-					mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("2. Back")) / 2, "          ");
-					mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("-> Back")) / 2, "-> Back");
-					mvprintw(MULTI_MENU_MATCH_Y, (COLS - strlen("connecting canceled")) / 2, "connecting canceled");
-					refresh();
-					while(getch() != '\n');
-					return;
 				}
 			}
 			else if (key == 2){

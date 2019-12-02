@@ -56,13 +56,12 @@ int init_program(){
 	srand((long)time(NULL));
 	keypad(stdscr, TRUE);
 
-	if (string_init(1) == -1){ // 0이면 서버에서, 1이면 로컬에서
+	if (string_init(0) == -1){ // 0이면 서버에서, 1이면 로컬에서
 		clear();
 		mvprintw(LINES/2, COLS/2 - 10, "game error. please restart");
 		return -1;
 	}
 
-	/* 디버깅할때는 꺼두자. 서버때매 귀찮아짐
 	mvprintw(MENU_SELECT_SINGLE_Y, (COLS - strlen("              ")) / 2, "               "); 
 	mvprintw(MENU_SELECT_MULTI_Y, (COLS - strlen("               ")) / 2, "               "); 
 	mvprintw(MENU_SELECT_EXIT_Y, (COLS - strlen("          ")) / 2, "          "); 
@@ -75,7 +74,6 @@ int init_program(){
 		refresh();
 		sleep(1);
 	}
-	*/
 
 	curs_set(0);
 
