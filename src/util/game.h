@@ -13,6 +13,11 @@
 #define NEW_WORD_C_INIT 2000
 #define LEVEL_UP_C_INIT 5000
 
+#define TA_WORD_DROP_C_INIT 300
+#define TA_NEW_WORD_C_INIT 700
+
+#define TIME_ATTACK_TIME_INIT 30000
+
 
 // doubly linked list
 typedef struct node {

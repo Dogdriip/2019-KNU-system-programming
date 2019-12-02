@@ -35,7 +35,6 @@
 #define GAMEOVER_WIN_Y GAME_SCR_PADDING
 #define GAMEOVER_WIN_X GAME_SCR_PADDING
 
-
 // linked list 관련
 node* get_node(char[], int, int);
 void insert_node(node*, node*);
@@ -56,3 +55,27 @@ int set_ticker(int);
 void trigger();
 void init_timer();
 void init_game();
+
+
+
+//////////////////////////////////////////////////// time_attack
+// linked list 관련
+node* ta_get_node(char[], int, int);
+void ta_insert_node(node*, node*);
+void ta_delete_node(node*, node*);
+
+
+// window 관련
+void ta_prepare_windows();
+void ta_update_info_win(int, int);
+void ta_update_game_win(node*);
+
+// 게임플레이
+void ta_gameover();
+void ta_drop_word(node*);
+void ta_add_new_word(node*);
+void ta_input_handler(node*, char[]);
+int ta_set_ticker(int);
+void ta_trigger();
+void ta_init_timer();
+void ta_init_game();

@@ -18,7 +18,7 @@ void start_single_menu(){
 		}
 		else if (key == 2){
 			// time attack
-			int score = single_time_attack_mode();
+			int score = single_time_attack_game();
 			
 			// time attack score는 처리한 단어 개수
 			// process_score 적절히 하면 됨
