@@ -7,6 +7,8 @@ void process_score(int elapsed_time){
 	int score_board[10];
 	char name_board[10][4];
 
+	noecho();
+
 	for(int i = MENU_INTERVAL; i < COLS - MENU_INTERVAL; i++)
 		mvaddch(MENU_INTERVAL, i, '*');
 	for(int i = MENU_INTERVAL; i < COLS - MENU_INTERVAL; i++)

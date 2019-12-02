@@ -1,0 +1,173 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CLOCK_INTERVAL	util/game.h	11;"	d
+FLAG	single/endless.c	/^short int FLAG;  \/\/ 게임 종료 여부$/;"	v
+FLAG	single/time_attack.c	/^short int FLAG;  \/\/ 게임 종료 여부$/;"	v
+GAMEOVER_WIN_HEIGHT	single/single.h	33;"	d
+GAMEOVER_WIN_WIDTH	single/single.h	34;"	d
+GAMEOVER_WIN_X	single/single.h	36;"	d
+GAMEOVER_WIN_Y	single/single.h	35;"	d
+GAME_SCR_PADDING	util/game.h	6;"	d
+GAME_WIN_HEIGHT	single/single.h	23;"	d
+GAME_WIN_WIDTH	single/single.h	24;"	d
+GAME_WIN_X	single/single.h	26;"	d
+GAME_WIN_Y	single/single.h	25;"	d
+INFO_WIN_HEIGHT	single/single.h	28;"	d
+INFO_WIN_WIDTH	single/single.h	29;"	d
+INFO_WIN_X	single/single.h	31;"	d
+INFO_WIN_Y	single/single.h	30;"	d
+LIBS	Makefile	/^LIBS = -lcurses -pthread$/;"	m
+LIFE_INIT	util/game.h	10;"	d
+MAX_STRING_COUNT	util/string.h	10;"	d
+MAX_STRING_LENGTH	util/string.h	12;"	d
+MENU_INTERVAL	main_menu.h	17;"	d
+MENU_SELECT_EXIT_Y	main_menu.h	21;"	d
+MENU_SELECT_MULTI_Y	main_menu.h	20;"	d
+MENU_SELECT_SINGLE_Y	main_menu.h	19;"	d
+MENU_TITLE_Y	main_menu.h	18;"	d
+MIN_STRING_LENGTH	util/string.h	11;"	d
+MULTI_GAME_WIN_HEIGHT	multi/multi_game.h	19;"	d
+MULTI_GAME_WIN_WIDTH	multi/multi_game.h	20;"	d
+MULTI_GAME_WIN_X	multi/multi_game.h	22;"	d
+MULTI_GAME_WIN_Y	multi/multi_game.h	21;"	d
+MULTI_INIT_COMMUNICATION_C	multi/multi_game.h	30;"	d
+MULTI_MENU_BACK_Y	multi/multi_menu.h	15;"	d
+MULTI_MENU_MATCH_Y	multi/multi_menu.h	14;"	d
+MULTI_OTHER_WIN_HEIGHT	multi/multi_game.h	25;"	d
+MULTI_OTHER_WIN_WIDTH	multi/multi_game.h	26;"	d
+MULTI_OTHER_WIN_X	multi/multi_game.h	28;"	d
+MULTI_OTHER_WIN_Y	multi/multi_game.h	27;"	d
+MY_COLS	main_menu.h	15;"	d
+MY_LINES	main_menu.h	14;"	d
+NEW_WORD_C_INIT	util/game.h	13;"	d
+PORTNUM_MULTI	util/connection.h	15;"	d
+PORTNUM_SCORE	util/connection.h	14;"	d
+PORTNUM_STRING	util/connection.h	13;"	d
+SERVERADDRESS	util/connection.h	16;"	d
+SINGLE_MENU_BACK_Y	single/single_menu.h	16;"	d
+SINGLE_MENU_ENDLESS_Y	single/single_menu.h	14;"	d
+SINGLE_MENU_TIMEATTACK_Y	single/single_menu.h	15;"	d
+TYPING_WIN_HEIGHT	single/single.h	18;"	d
+TYPING_WIN_WIDTH	single/single.h	19;"	d
+TYPING_WIN_X	single/single.h	21;"	d
+TYPING_WIN_Y	single/single.h	20;"	d
+WORD_DROP_C_INIT	util/game.h	12;"	d
+add_new_word	single/endless.c	/^void add_new_word(node* header) {$/;"	f
+add_new_word	single/time_attack.c	/^void add_new_word(node* header) {$/;"	f
+close_score_server	util/connection.c	/^void close_score_server(int socket_id){$/;"	f
+communication_c	multi/multi_game.c	/^int communication_c;$/;"	v
+connecting	multi/multi_menu.c	/^multi_info connecting(){$/;"	f
+delete_node	single/endless.c	/^void delete_node(node* destnode, node* deleted) {$/;"	f
+delete_node	single/time_attack.c	/^void delete_node(node* destnode, node* deleted) {$/;"	f
+draw_main_menu	main_menu.c	/^void draw_main_menu(){$/;"	f
+draw_multi_menu	multi/multi_menu.c	/^void draw_multi_menu(){$/;"	f
+draw_single_menu	single/single_menu.c	/^void draw_single_menu(){$/;"	f
+draw_title	main_menu.c	/^void draw_title(){$/;"	f
+drop_word	single/endless.c	/^void drop_word(node* header) {$/;"	f
+drop_word	single/time_attack.c	/^void drop_word(node* header) {$/;"	f
+elapsed_time	multi/multi_game.c	/^int elapsed_time;$/;"	v
+elapsed_time	single/endless.c	/^int elapsed_time;$/;"	v
+elapsed_time	single/time_attack.c	/^int elapsed_time;$/;"	v
+end_program	main_menu.c	/^void end_program(){$/;"	f
+fd	multi/multi_menu.h	/^	int fd;$/;"	m	struct:multi_info
+flag	multi/multi_menu.h	/^	int flag;$/;"	m	struct:multi_info
+flag_multi_game	multi/multi_game.c	/^int flag_multi_game = 1;$/;"	v
+game_win	multi/multi_game.c	/^WINDOW* game_win;   \/\/ 좌상단 유저 게임 화면 출력창$/;"	v
+game_win	single/endless.c	/^WINDOW* game_win;  \/\/ 좌상단 가장 큰 게임 메인창$/;"	v
+game_win	single/time_attack.c	/^WINDOW* game_win;  \/\/ 좌상단 가장 큰 게임 메인창$/;"	v
+gameover	single/endless.c	/^void gameover() {$/;"	f
+gameover	single/time_attack.c	/^void gameover() {$/;"	f
+gameover_win	single/endless.c	/^WINDOW* gameover_win;  \/\/ 게임오버 창$/;"	v
+gameover_win	single/time_attack.c	/^WINDOW* gameover_win;  \/\/ 게임오버 창$/;"	v
+get_node	single/endless.c	/^node* get_node(char word[], int y, int x) {$/;"	f
+get_node	single/time_attack.c	/^node* get_node(char word[], int y, int x) {$/;"	f
+get_string_count	util/string.c	/^int get_string_count(int i){$/;"	f
+get_word	util/string.c	/^char* get_word(int min, int max){$/;"	f
+info_win	single/endless.c	/^WINDOW* info_win;  \/\/ 우상단 현재 게임 정보 출력창$/;"	v
+info_win	single/time_attack.c	/^WINDOW* info_win;  \/\/ 우상단 현재 게임 정보 출력창$/;"	v
+init_game	single/endless.c	/^void init_game() {$/;"	f
+init_game	single/time_attack.c	/^void init_game() {$/;"	f
+init_program	main_menu.c	/^int init_program(){$/;"	f
+init_timer	single/endless.c	/^void init_timer() {$/;"	f
+init_timer	single/time_attack.c	/^void init_timer() {$/;"	f
+input_func	multi/multi_game.c	/^void* input_func(void* thr_data){$/;"	f
+input_handler	single/endless.c	/^void input_handler(node* header, char str[]) {$/;"	f
+input_handler	single/time_attack.c	/^void input_handler(node* header, char str[]) {$/;"	f
+insert_node	single/endless.c	/^void insert_node(node* destnode, node* newnode) {$/;"	f
+insert_node	single/time_attack.c	/^void insert_node(node* destnode, node* newnode) {$/;"	f
+list_header	multi/multi_game.c	/^node* list_header;  \/\/ 현재 게임판에 나와있는 단어들 리스트$/;"	v
+list_header	single/endless.c	/^node* list_header;  \/\/ 현재 게임판에 나와있는 단어들 리스트$/;"	v
+list_header	single/time_attack.c	/^node* list_header;  \/\/ 현재 게임판에 나와있는 단어들 리스트$/;"	v
+llink	util/game.h	/^    struct node* llink;$/;"	m	struct:node	typeref:struct:node::node
+main	main_menu.c	/^int main(){$/;"	f
+message	multi/multi_menu.h	/^	char message[30];$/;"	m	struct:multi_info
+multi_add_new_word	multi/multi_game.c	/^void multi_add_new_word(node* header) {$/;"	f
+multi_communication	multi/multi_game.c	/^void* multi_communication(void* m){$/;"	f
+multi_connection	util/connection.c	/^void* multi_connection(void* m){$/;"	f
+multi_delete_node	multi/multi_game.c	/^void multi_delete_node(node* destnode, node* deleted) {$/;"	f
+multi_drop_word	multi/multi_game.c	/^void multi_drop_word(node* header) {$/;"	f
+multi_fd	multi/multi_game.c	/^int multi_fd;$/;"	v
+multi_game_win	multi/multi_game.c	/^void multi_game_win(){$/;"	f
+multi_gameover	multi/multi_game.c	/^void multi_gameover(){$/;"	f
+multi_get_node	multi/multi_game.c	/^node* multi_get_node(char word[], int y, int x) {$/;"	f
+multi_info	multi/multi_menu.h	/^typedef struct multi_info{$/;"	s
+multi_info	multi/multi_menu.h	/^}multi_info;$/;"	t	typeref:struct:multi_info
+multi_init_game	multi/multi_game.c	/^void multi_init_game() {$/;"	f
+multi_init_timer	multi/multi_game.c	/^void multi_init_timer() {$/;"	f
+multi_input_handler	multi/multi_game.c	/^void multi_input_handler(node *header, char str[]){$/;"	f
+multi_insert_node	multi/multi_game.c	/^void multi_insert_node(node* destnode, node* newnode) {$/;"	f
+multi_prepare_windows	multi/multi_game.c	/^void multi_prepare_windows() {$/;"	f
+multi_set_ticker	multi/multi_game.c	/^int multi_set_ticker(int n_msecs) {$/;"	f
+multi_trigger	multi/multi_game.c	/^void multi_trigger() {$/;"	f
+multi_update_game_win	multi/multi_game.c	/^void multi_update_game_win(node* header) {$/;"	f
+mutex_lock	multi/multi_game.c	/^pthread_mutex_t mutex_lock;$/;"	v
+new_word_c	multi/multi_game.c	/^int new_word_c;$/;"	v
+new_word_c	single/endless.c	/^int new_word_c;$/;"	v
+new_word_c	single/time_attack.c	/^int new_word_c;$/;"	v
+node	util/game.h	/^typedef struct node {$/;"	s
+node	util/game.h	/^} node;$/;"	t	typeref:struct:node
+open_score_server	util/connection.c	/^int open_score_server(){$/;"	f
+other_win	multi/multi_game.c	/^WINDOW* other_win;  \/\/ 우상단 상대 게임 화면 출력창$/;"	v
+prepare_windows	single/endless.c	/^void prepare_windows() {$/;"	f
+prepare_windows	single/time_attack.c	/^void prepare_windows() {$/;"	f
+process_score	single/single_gameover.c	/^void process_score(int elapsed_time){$/;"	f
+receive_score	util/connection.c	/^int receive_score(int socket_id, int score[], char name[][4]){$/;"	f
+remain_life	multi/multi_game.c	/^int remain_life;$/;"	v
+remain_life	single/endless.c	/^int remain_life;$/;"	v
+remain_life	single/time_attack.c	/^int remain_life;$/;"	v
+rlink	util/game.h	/^    struct node* rlink;$/;"	m	struct:node	typeref:struct:node::node
+select_main_menu	main_menu.c	/^int select_main_menu(){$/;"	f
+select_multi_menu	multi/multi_menu.c	/^int select_multi_menu(){$/;"	f
+select_single_menu	single/single_menu.c	/^int select_single_menu(){$/;"	f
+send_score	util/connection.c	/^int send_score(int socket_id, int score, char *name){$/;"	f
+set_ticker	single/endless.c	/^int set_ticker(int n_msecs) {$/;"	f
+set_ticker	single/time_attack.c	/^int set_ticker(int n_msecs) {$/;"	f
+single_endless_game	single/endless.c	/^int single_endless_game() {$/;"	f
+single_time_attack_mode	single/time_attack.c	/^void single_time_attack_mode() {$/;"	f
+socket_id_multi	util/connection.c	/^int socket_id_multi = 0;$/;"	v
+start_multi_game	multi/multi_game.c	/^void start_multi_game(int fd) {$/;"	f
+start_multi_menu	multi/multi_menu.c	/^void start_multi_menu(){$/;"	f
+start_single_menu	single/single_menu.c	/^void start_single_menu(){$/;"	f
+string	util/string.c	/^char string[MAX_STRING_LENGTH + 1][MAX_STRING_COUNT][MAX_STRING_LENGTH+1];$/;"	v
+string_count	util/string.c	/^int string_count[MAX_STRING_LENGTH + 1]; \/\/ 각 길이당 몇개의 문장을 가지고 있는지 저장하는 배열$/;"	v
+string_init	util/string.c	/^int string_init(int mode){$/;"	f
+trigger	single/endless.c	/^void trigger() {$/;"	f
+trigger	single/time_attack.c	/^void trigger() {$/;"	f
+tty_mode	main_menu.c	/^void tty_mode(int how){$/;"	f
+typing_win	multi/multi_game.c	/^WINDOW* typing_win;  \/\/ 하단 유저 입력창$/;"	v
+typing_win	single/endless.c	/^WINDOW* typing_win;  \/\/ 하단 유저 입력창$/;"	v
+typing_win	single/time_attack.c	/^WINDOW* typing_win;  \/\/ 하단 유저 입력창$/;"	v
+update_game_win	single/endless.c	/^void update_game_win(node* header) {$/;"	f
+update_game_win	single/time_attack.c	/^void update_game_win(node* header) {$/;"	f
+update_info_win	single/endless.c	/^void update_info_win(int life, int score) {$/;"	f
+update_info_win	single/time_attack.c	/^void update_info_win(int life, int score) {$/;"	f
+word	util/game.h	/^    char word[40];  \/\/ word content$/;"	m	struct:node
+word_drop_c	multi/multi_game.c	/^int word_drop_c;$/;"	v
+word_drop_c	single/endless.c	/^int word_drop_c;$/;"	v
+word_drop_c	single/time_attack.c	/^int word_drop_c;$/;"	v
+x	util/game.h	/^    int y, x;  \/\/ pos (row, col)$/;"	m	struct:node
+y	util/game.h	/^    int y, x;  \/\/ pos (row, col)$/;"	m	struct:node
