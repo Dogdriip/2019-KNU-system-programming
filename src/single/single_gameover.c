@@ -1,6 +1,6 @@
 #include "single_gameover.h"
 
-void process_score(int elapsed_time){
+void process_score(int score, int mode){
 	char name[4] = "";
 	int char_pos[3] = {0};
 	int key = 0, pos = 0;
@@ -69,10 +69,10 @@ void process_score(int elapsed_time){
 	// 서버랑 점수를 주고, 받음.
 	int socket_id = open_score_server();
 
-	if (send_score(socket_id, elapsed_time, name) == -1)
+	if (send_score(socket_id, mode, score, name) == -1)
 		return;
 
-	int len = receive_score(socket_id, score_board, name_board);
+	int len = receive_score(socket_id, mode, score_board, name_board);
 	if (len == -1)
 		return;
 

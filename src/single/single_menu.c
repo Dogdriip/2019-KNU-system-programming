@@ -12,16 +12,14 @@ void start_single_menu(){
 		if (key == 1){
 			// endless
 			int score = single_endless_game();
-			process_score(score);
+			process_score(score, 0);
 
 			return;
 		}
 		else if (key == 2){
 			// time attack
 			int score = single_time_attack_game();
-			
-			// time attack score는 처리한 단어 개수
-			// process_score 적절히 하면 됨
+			process_score(score, 1);
 
 			return;
 		}
