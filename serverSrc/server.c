@@ -293,7 +293,7 @@ void send_score(int sock_fd, int mode){
 	if (mode == 0)
 		fp = fopen("resource/score.txt", "r");
 	else
-		fp = fopen("resource/scrore2.txt", "r");
+		fp = fopen("resource/score2.txt", "r");
 	struct Score score;
 	int len_score_board = 0;
 
@@ -316,7 +316,7 @@ int receive_score(int sock_fd){
 	read(sock_fd, &(score.mode), sizeof(int));
 	read(sock_fd, score.name, sizeof(char) * 4);
 	read(sock_fd, &(score.score), sizeof(int));
-	printf("%s %d\n", score.name,score.score);
+	printf("[%d] %s %d\n", score.mode, score.name,score.score);
 
 	save_score(score);
 
