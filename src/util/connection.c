@@ -47,6 +47,8 @@ void* multi_connection(void* m){
 	}
 
 	info->flag = 1;
+
+	return NULL;
 }
 
 int open_score_server(){
@@ -84,8 +86,8 @@ void close_score_server(int socket_id){
 	close(socket_id);
 }
 
-// 점수를 서버로 보냄. int score : 점수(초단위), char *name : 이름
-int send_score(int socket_id, int score, char *name){
+// 점수를 서버로 보냄.int mode : 0일때  int score : 점수(초단위), char *name : 이름
+int send_score(int socket_id, int mode, int score, char *name){
 	if (socket_id == -1)
 		return -1;
 
@@ -96,7 +98,7 @@ int send_score(int socket_id, int score, char *name){
 // 서버로부터 점수를 받아옴. 상위 10등까지의 점수를 받아온다.
 // score 배열과 name 배열에 각각 점수와 이름이 들어감.
 // index : 0부터 시작 
-int receive_score(int socket_id, int score[], char name[][4]){
+int receive_score(int socket_id, int mode, int score[], char name[][4]){
 	if (socket_id == -1)
 		return -1;
 

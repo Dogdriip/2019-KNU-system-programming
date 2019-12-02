@@ -36,6 +36,9 @@ WINDOW* game_win;   // 좌상단 유저 게임 화면 출력창
 WINDOW* other_win;  // 우상단 상대 게임 화면 출력창
 WINDOW* typing_win;  // 하단 유저 입력창
 
+int remain_life;
+char screen_edge[MULTI_GAME_WIN_WIDTH + 1];
+
 void multi_prepare_windows() {
     game_win = newwin(MULTI_GAME_WIN_HEIGHT, MULTI_GAME_WIN_WIDTH, MULTI_GAME_WIN_Y, MULTI_GAME_WIN_X);
     box(game_win, '*', '*');
@@ -45,6 +48,12 @@ void multi_prepare_windows() {
 
     typing_win = newwin(TYPING_WIN_HEIGHT, TYPING_WIN_WIDTH, TYPING_WIN_Y, TYPING_WIN_X);
     box(typing_win, '*', '*');
+
+	for(int i = 0; i < MULTI_GAME_WIN_WIDTH; i++)
+		screen_edge[i] = '*';
+	mvwprintw(game_win, 2, 0, "%s", screen_edge);
+	mvwprintw(other_win, 2, 0, "%s", screen_edge);
+	wrefresh(other_win);
 }
 
 void multi_update_game_win(node* header) {
@@ -53,6 +62,11 @@ void multi_update_game_win(node* header) {
     // 아예 game_win을 clear시켜버리고, 각 단어 위치에다가 새로 그린다
     wclear(game_win);
     box(game_win, '*', '*');
+	wmove(game_win, 2, 0);
+	wprintw(game_win, "%s", screen_edge);
+
+	wmove(game_win, 1, 2);
+	wprintw(game_win, "HP : %d", remain_life);
   
     for (curr = header->rlink; curr != header; curr = curr->rlink) {
         wmove(game_win, curr->y, curr->x);
@@ -66,7 +80,6 @@ void multi_update_game_win(node* header) {
 //////////////////////////////////////////////////////////////
 // 게임플레이
 int elapsed_time;
-int remain_life;
 int word_drop_c;
 int new_word_c;
 
@@ -143,7 +156,7 @@ void multi_add_new_word(node* header) {
 
     strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
     
-    tmp = multi_get_node(word, 2, (rand() % (MULTI_GAME_WIN_WIDTH - strlen(word) - 2)) + MULTI_GAME_WIN_X + 1);
+    tmp = multi_get_node(word, 3, (rand() % (MULTI_GAME_WIN_WIDTH - strlen(word) - 2)) + MULTI_GAME_WIN_X + 1);
 	
 	multi_insert_node(list_header->llink, tmp);
 }
@@ -271,6 +284,7 @@ void multi_init_timer() {
 void multi_init_game() {
 	flag_multi_game = 1;
     remain_life = LIFE_INIT;
+	remain_life = 1;
 
     list_header = (node*)malloc(sizeof(*list_header));
     list_header->llink = list_header->rlink = list_header;
@@ -338,17 +352,24 @@ void start_multi_game(int fd) {
 
 	WINDOW *gameover_win = newwin(LINES - 10, COLS - 10, 5, 5);
 	box(gameover_win, '*', '*');
-	mvwprintw(gameover_win, (LINES - 10) / 2 - 2, (COLS - 10 - strlen("GAMEOVER!!")) / 2, "GAMEOVER!!");
+	mvwprintw(gameover_win, (LINES - 10) / 2 + 5, (COLS - 10 - strlen("GAMEOVER!!")) / 2, "GAMEOVER!!");
 	if (flag_multi_game == 2)
-		mvwprintw(gameover_win, (LINES - 10) / 2, (COLS - 10 - strlen("Win")) / 2, "Win");
+		mvwprintw(gameover_win, (LINES - 10) / 2 + 7, (COLS - 10 - strlen("Win")) / 2, "Win");
 	else
-		mvwprintw(gameover_win, (LINES - 10) / 2, (COLS - 10 - strlen("Lose")) / 2, "Lose");
+		mvwprintw(gameover_win, (LINES - 10) / 2 + 7, (COLS - 10 - strlen("Lose")) / 2, "Lose");
 	wrefresh(gameover_win);
-	draw_title();
+
+	if (MENU_TITLE_Y + 10 < (LINES - 10) / 2 + 5)
+		draw_title();
 	sleep(1);
-	mvwprintw(gameover_win, (LINES - 10) / 2 + 2, (COLS - 10 - strlen("Please Enter Key")) / 2, "Please Enter Key");
+	
+	mvwprintw(gameover_win, (LINES - 10) / 2 + 10, (COLS - 10 - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
 	wrefresh(gameover_win);
 
 	int temp_val = 0;
 	while((temp_val = getch()) != '\n');
+
+	wclear(gameover_win);
+	wrefresh(gameover_win);
+	delwin(gameover_win);
 }

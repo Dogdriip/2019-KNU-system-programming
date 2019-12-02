@@ -11,9 +11,6 @@
 #include "multi/multi_menu.h"
 #include "util/string.h"
 
-#define MY_LINES 41
-#define MY_COLS 181
-
 #define MENU_INTERVAL 5 // 메뉴 테두리가 스크린 가장자리로부터 얼마나 떨어지는가
 #define MENU_TITLE_Y 8 // 제목의 Y좌표
 #define MENU_SELECT_SINGLE_Y (LINES / 2) // Single 선택의 Y 좌표

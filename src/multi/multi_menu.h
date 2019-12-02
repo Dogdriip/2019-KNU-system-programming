@@ -11,8 +11,11 @@
 #include "../main_menu.h"
 #include "multi_game.h"
 
-#define MULTI_MENU_MATCH_Y 19
-#define MULTI_MENU_BACK_Y 27
+#define MY_LINES 41
+#define MY_COLS 181
+
+#define MULTI_MENU_MATCH_Y (LINES / 2)
+#define MULTI_MENU_BACK_Y (LINES - 10)
 
 typedef struct multi_info{
 	int flag;

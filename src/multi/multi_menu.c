@@ -63,6 +63,22 @@ multi_info connecting(){
 	}
 }
 
+int check_screen_size(){
+	if (LINES < MY_LINES || COLS < MY_COLS){
+		mvprintw(LINES / 2, (COLS - strlen("Please use bigger screen")) / 2, "Please use bigger screen");
+		refresh();
+		sleep(1);
+
+		mvprintw(LINES / 2 + 2, (COLS - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
+		refresh();
+		
+		while(getch() != '\n');
+
+		return -1;
+	}
+	return 0;
+}
+
 // 메뉴는 기본 strscr에 그린당.
 void start_multi_menu(){
 	int key = 0;
@@ -74,6 +90,10 @@ void start_multi_menu(){
 		mvprintw(MULTI_MENU_BACK_Y, (COLS - strlen("2. Back")) / 2, "2. Back");
 			
 			if (key == 1){
+				if (check_screen_size() == -1){
+					draw_multi_menu();
+					continue;
+				}
 				multi_info info = connecting();
 				if (info.flag == -1){ // 연결도중 에러 발생
 					draw_multi_menu();

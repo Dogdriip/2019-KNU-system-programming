@@ -19,19 +19,11 @@ void process_score(int elapsed_time){
 		mvaddch(i, COLS - MENU_INTERVAL, '*');
 
 
-	mvprintw(MENU_TITLE_Y, (COLS - strlen(" /$$$$$$$              /$$     /$$     /$$                 /$$$$$$$$                  /$$                    ")) / 2, " /$$$$$$$              /$$     /$$     /$$                 /$$$$$$$$                  /$$                    ");         
-	mvprintw(MENU_TITLE_Y+1, (COLS - strlen("| $$__  $$            | $$    | $$    | $$                |__  $$__/                 |__/                    "))/2, "| $$__  $$            | $$    | $$    | $$                |__  $$__/                 |__/                    "); 
-	mvprintw(MENU_TITLE_Y+2, (COLS - strlen("| $$  \\ $$  /$$$$$$  /$$$$$$ /$$$$$$  | $$  /$$$$$$          | $$ /$$   /$$  /$$$$$$  /$$ /$$$$$$$   /$$$$$$ "))/2, "| $$  \\ $$  /$$$$$$  /$$$$$$ /$$$$$$  | $$  /$$$$$$          | $$ /$$   /$$  /$$$$$$  /$$ /$$$$$$$   /$$$$$$ ");
-	mvprintw(MENU_TITLE_Y+3, (COLS - strlen("| $$$$$$$  |____  $$|_  $$_/|_  $$_/  | $$ /$$__  $$         | $$| $$  | $$ /$$__  $$| $$| $$__  $$ /$$__  $$"))/2, "| $$$$$$$  |____  $$|_  $$_/|_  $$_/  | $$ /$$__  $$         | $$| $$  | $$ /$$__  $$| $$| $$__  $$ /$$__  $$");
-	mvprintw(MENU_TITLE_Y+4, (COLS - strlen("| $$__  $$  /$$$$$$$  | $$    | $$    | $$| $$$$$$$$         | $$| $$  | $$| $$  \\ $$| $$| $$  \\ $$| $$  \\ $$")) / 2, "| $$__  $$  /$$$$$$$  | $$    | $$    | $$| $$$$$$$$         | $$| $$  | $$| $$  \\ $$| $$| $$  \\ $$| $$  \\ $$");
-	mvprintw(MENU_TITLE_Y+5, (COLS - strlen("| $$  \\ $$ /$$__  $$  | $$ /$$| $$ /$$| $$| $$_____/         | $$| $$  | $$| $$  | $$| $$| $$  | $$| $$  | $$"))/2, "| $$  \\ $$ /$$__  $$  | $$ /$$| $$ /$$| $$| $$_____/         | $$| $$  | $$| $$  | $$| $$| $$  | $$| $$  | $$");
-	mvprintw(MENU_TITLE_Y+6, (COLS - strlen("| $$$$$$$/|  $$$$$$$  |  $$$$/|  $$$$/| $$|  $$$$$$$         | $$|  $$$$$$$| $$$$$$$/| $$| $$  | $$|  $$$$$$$")) /2,"| $$$$$$$/|  $$$$$$$  |  $$$$/|  $$$$/| $$|  $$$$$$$         | $$|  $$$$$$$| $$$$$$$/| $$| $$  | $$|  $$$$$$$");
-	mvprintw(MENU_TITLE_Y+7, (COLS - strlen("|_______/  \\_______/   \\___/   \\___/  |__/ \\_______/         |__/ \\____  $$| $$____/ |__/|__/  |__/ \\____  $$"))/2, "|_______/  \\_______/   \\___/   \\___/  |__/ \\_______/         |__/ \\____  $$| $$____/ |__/|__/  |__/ \\____  $$");
-	mvprintw(MENU_TITLE_Y+8, (COLS - strlen("                                                                  /$$  | $$| $$                     /$$  \\ $$"))/2, "                                                                  /$$  | $$| $$                     /$$  \\ $$");
-	mvprintw(MENU_TITLE_Y+9, (COLS - strlen("                                                                 |  $$$$$$/| $$                    |  $$$$$$/"))/2, "                                                                 |  $$$$$$/| $$                    |  $$$$$$/");
-	mvprintw(MENU_TITLE_Y+10, (COLS - strlen("                                                                  \\______/ |__/                     \\______/ "))/2, "                                                                  \\______/ |__/                     \\______/ ");
+	if (MENU_TITLE_Y + 10 < LINES / 2 - 5)
+		draw_title();
 
-
+	// 이름 입력
+	mvprintw(LINES / 2 - 4, (COLS - strlen("Enter Your Name")) / 2, "Enter Your Name");
 	while(1){
 		for(int i = 0; i <= 2; i++){
 			for(int j = -2; j <= 2; j++){
@@ -74,6 +66,7 @@ void process_score(int elapsed_time){
 	for(int i = 0; i < 3; i++)
 		name[i] = char_pos[i] + 'A';
 
+	// 서버랑 점수를 주고, 받음.
 	int socket_id = open_score_server();
 
 	if (send_score(socket_id, elapsed_time, name) == -1)
@@ -83,13 +76,14 @@ void process_score(int elapsed_time){
 	if (len == -1)
 		return;
 
+	mvprintw(LINES / 2 - 4, (COLS - strlen("Enter Your Name")) / 2, "               ");
 	for(int i = -1; i <= 1; i++)
 		mvprintw(LINES / 2 + i, COLS / 2 - 2, "     ");
 
-	mvprintw(LINES / 2, (COLS - strlen("Score Board")) / 2, "Score Board");
+	mvprintw(LINES / 2 - 4, (COLS - strlen("Score Board")) / 2, "Score Board");
 	for(int i = 0; i < len; i++)
-		mvprintw(LINES / 2 + 1 + i, COLS / 2 - 4, "%s : %d",name_board[i], score_board[i]);
-	mvprintw(LINES / 2 + 12, (COLS - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
+		mvprintw(LINES / 2 - 2 + i, COLS / 2 - 4, "%s : %d",name_board[i], score_board[i]);
+	mvprintw(LINES / 2 + 9, (COLS - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
 
 	refresh();
 	getch();
