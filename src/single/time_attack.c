@@ -116,6 +116,13 @@ void ta_gameover() {
 
     wrefresh(gameover_win);
 
+    sleep(1);
+	
+	mvwprintw(gameover_win, (LINES - 10) / 2 + 10, (COLS - 10 - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
+	wrefresh(gameover_win);
+
+	// while(getch() != '\n');
+
     // 종료 조건: flag를 false로
     FLAG = 0;
 }

@@ -117,6 +117,13 @@ void gameover() {
 
     wrefresh(gameover_win);
 
+    sleep(1);
+	
+	mvwprintw(gameover_win, (LINES - 10) / 2 + 10, (COLS - 10 - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
+	wrefresh(gameover_win);
+
+	// while(getch() != '\n');
+
     // 종료 조건: flag를 false로
     FLAG = 0;
 }
@@ -140,7 +147,6 @@ void drop_word(node* header) {
             // life 1 감소
             remain_life -= 1;
             if (remain_life <= 0) {
-                printf("gameover\n");
                 gameover();
             }
         }
@@ -153,7 +159,7 @@ void add_new_word(node* header) {
 
     strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
     
-    tmp = get_node(word, 2, (rand() % (GAME_WIN_WIDTH - MAX_STRING_LENGTH - 3) + GAME_WIN_X + 1));
+    tmp = get_node(word, 1, (rand() % (GAME_WIN_WIDTH - strlen(word) - 7) + GAME_WIN_X + 1));
     insert_node(list_header->llink, tmp);
 }
 
