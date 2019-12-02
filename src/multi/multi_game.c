@@ -156,7 +156,7 @@ void multi_add_new_word(node* header) {
 
     strcpy(word, get_word(MIN_STRING_LENGTH, MAX_STRING_LENGTH));
     
-    tmp = multi_get_node(word, 3, (rand() % (MULTI_GAME_WIN_WIDTH - strlen(word) - 2)) + MULTI_GAME_WIN_X + 1);
+    tmp = multi_get_node(word, 3, (rand() % (MULTI_GAME_WIN_WIDTH - strlen(word) - 3)) + MULTI_GAME_WIN_X + 1);
 	
 	multi_insert_node(list_header->llink, tmp);
 }
