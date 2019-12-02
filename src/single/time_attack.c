@@ -108,11 +108,11 @@ void ta_gameover() {
 
 
     char gameover_str[] = "GAME OVER";
-    wmove(gameover_win, GAMEOVER_WIN_Y + 5, (GAMEOVER_WIN_X + (GAMEOVER_WIN_X + GAMEOVER_WIN_WIDTH)) / 2 - strlen(gameover_str));
+    wmove(gameover_win, GAMEOVER_WIN_Y + 5, (COLS - 10 - strlen(gameover_str)) / 2);
     wprintw(gameover_win, gameover_str);
 
-    wmove(gameover_win, GAMEOVER_WIN_Y + 8, GAMEOVER_WIN_X + 50);
-    wprintw(gameover_win, "SCORE : %d", score);
+    wmove(gameover_win, GAMEOVER_WIN_Y + 8, (COLS - 10 - strlen("SCORE :    ")) / 2);
+    wprintw(gameover_win, "SCORE : %3d", score);
 
     wrefresh(gameover_win);
 
