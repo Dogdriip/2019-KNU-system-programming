@@ -19,22 +19,23 @@ void process_score(int score, int mode){
 		mvaddch(i, COLS - MENU_INTERVAL, '*');
 
 
-	if (MENU_TITLE_Y + 10 < LINES / 2 - 5)
-		draw_title();
+	draw_title();
+
+	int start_y = MENU_TITLE_Y + 11;
 
 	// 이름 입력
-	mvprintw(LINES / 2 - 4, (COLS - strlen("Enter Your Name")) / 2, "Enter Your Name");
+	mvprintw(start_y, (COLS - strlen("Enter Your Name")) / 2, "Enter Your Name");
 	while(1){
 		for(int i = 0; i <= 2; i++){
 			for(int j = -2; j <= 2; j++){
 				if (j == 0)
-					mvprintw(LINES / 2 - 1 + i, COLS / 2, "%c", char_pos[i] + 'A');
+					mvprintw(start_y + 2 + i, COLS / 2, "%c", char_pos[i] + 'A');
 				else
-					mvprintw(LINES / 2 - 1 + i, COLS / 2 + j, " ");
+					mvprintw(start_y + 2 + i, COLS / 2 + j, " ");
 			}
 		}
-		mvprintw(LINES / 2 - 1 + pos, COLS / 2 - 2, "<-");
-		mvprintw(LINES / 2 - 1 + pos, COLS / 2 + 1, "->");
+		mvprintw(start_y + 2 + pos, COLS / 2 - 2, "<-");
+		mvprintw(start_y + 2 + pos, COLS / 2 + 1, "->");
 
 		refresh();
 
@@ -76,16 +77,15 @@ void process_score(int score, int mode){
 	if (len == -1)
 		return;
 
-	mvprintw(LINES / 2 - 4, (COLS - strlen("Enter Your Name")) / 2, "               ");
+	mvprintw(start_y, (COLS - strlen("Enter Your Name")) / 2, "               ");
 	for(int i = -1; i <= 1; i++)
-		mvprintw(LINES / 2 + i, COLS / 2 - 2, "     ");
+		mvprintw(start_y + 3 + i, COLS / 2 - 2, "     ");
 
-	mvprintw(LINES / 2 - 4, (COLS - strlen("Score Board")) / 2, "Score Board");
+	mvprintw(start_y, (COLS - strlen("Score Board")) / 2, "Score Board");
 	for(int i = 0; i < len; i++)
-		mvprintw(LINES / 2 - 2 + i, COLS / 2 - 4, "%s : %d",name_board[i], score_board[i]);
-	mvprintw(LINES / 2 + 9, (COLS - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
+		mvprintw(start_y + 2 + i, COLS / 2 - 4, "%s : %d",name_board[i], score_board[i]);
+	mvprintw(start_y + 11, (COLS - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
 
 	refresh();
-	getch();
-
+	while(getch() != '\n');
 }

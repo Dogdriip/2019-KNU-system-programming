@@ -91,8 +91,11 @@ int send_score(int socket_id, int mode, int score, char *name){
 	if (socket_id == -1)
 		return -1;
 
+	write(socket_id, &mode, sizeof(int));
 	write(socket_id, name, sizeof(char) * 4);
 	write(socket_id, &score, sizeof(int));
+
+	return 0;
 }
 
 // 서버로부터 점수를 받아옴. 상위 10등까지의 점수를 받아온다.

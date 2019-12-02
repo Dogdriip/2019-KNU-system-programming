@@ -366,8 +366,7 @@ void start_multi_game(int fd) {
 	mvwprintw(gameover_win, (LINES - 10) / 2 + 10, (COLS - 10 - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
 	wrefresh(gameover_win);
 
-	int temp_val = 0;
-	while((temp_val = getch()) != '\n');
+	while(getch() != '\n');
 
 	wclear(gameover_win);
 	wrefresh(gameover_win);
