@@ -16,22 +16,22 @@
 
 // 윈도우 3개 관련 상수
 #define TYPING_WIN_HEIGHT 5
-#define TYPING_WIN_WIDTH (MY_COLS - (GAME_SCR_PADDING * 2))
-#define TYPING_WIN_Y (MY_LINES - (GAME_SCR_PADDING * 2))
+#define TYPING_WIN_WIDTH (COLS - (GAME_SCR_PADDING * 2))
+#define TYPING_WIN_Y (LINES - (GAME_SCR_PADDING * 2))
 #define TYPING_WIN_X GAME_SCR_PADDING
 
-#define GAME_WIN_HEIGHT (MY_LINES - (GAME_SCR_PADDING * 2) - TYPING_WIN_HEIGHT)
-#define GAME_WIN_WIDTH ((MY_COLS - (GAME_SCR_PADDING * 2)) * 2 / 3)
+#define GAME_WIN_HEIGHT (LINES - (GAME_SCR_PADDING * 2) - TYPING_WIN_HEIGHT)
+#define GAME_WIN_WIDTH ((COLS - (GAME_SCR_PADDING * 2)) * 2 / 3)
 #define GAME_WIN_Y GAME_SCR_PADDING
 #define GAME_WIN_X GAME_SCR_PADDING
 
-#define INFO_WIN_HEIGHT (MY_LINES - (GAME_SCR_PADDING * 2) - TYPING_WIN_HEIGHT)
-#define INFO_WIN_WIDTH ((MY_COLS - (GAME_SCR_PADDING * 2)) / 3)
+#define INFO_WIN_HEIGHT (LINES - (GAME_SCR_PADDING * 2) - TYPING_WIN_HEIGHT)
+#define INFO_WIN_WIDTH ((COLS - (GAME_SCR_PADDING * 2)) / 3)
 #define INFO_WIN_Y GAME_SCR_PADDING
 #define INFO_WIN_X (GAME_SCR_PADDING + GAME_WIN_WIDTH)
 
-#define GAMEOVER_WIN_HEIGHT (MY_LINES - (GAME_SCR_PADDING * 2))
-#define GAMEOVER_WIN_WIDTH (MY_COLS - (GAME_SCR_PADDING * 2))
+#define GAMEOVER_WIN_HEIGHT (LINES - (GAME_SCR_PADDING * 2))
+#define GAMEOVER_WIN_WIDTH (COLS - (GAME_SCR_PADDING * 2))
 #define GAMEOVER_WIN_Y GAME_SCR_PADDING
 #define GAMEOVER_WIN_X GAME_SCR_PADDING
 
@@ -44,7 +44,7 @@ void delete_node(node*, node*);
 
 // window 관련
 void prepare_windows();
-void update_info_win(int, int);
+void update_info_win(int, int, int);
 void update_game_win(node*);
 
 // 게임플레이
