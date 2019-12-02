@@ -8,4 +8,4 @@
 #include "../util/connection.h"
 #include "single.h"
 
-void process_score(int score);
+void process_score(int score, int mode);
