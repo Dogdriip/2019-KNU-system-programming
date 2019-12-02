@@ -44,7 +44,7 @@ void delete_node(node*, node*);
 
 // window 관련
 void prepare_windows();
-void update_info_win(int, int);
+void update_info_win(int, int, int);
 void update_game_win(node*);
 
 // 게임플레이
