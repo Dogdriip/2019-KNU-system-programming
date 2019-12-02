@@ -1,7 +1,5 @@
-LIBS = -lcurses -pthread
-
-battle_typing: main_menu.o single_menu.o string.o endless.o connection.o multi_menu.o multi_game.o single_gameover.o
-	gcc -o battle_typing *.o $(LIBS)
+battle_typing: main_menu.o single_menu.o string.o endless.o connection.o multi_menu.o multi_game.o single_gameover.o time_attack.o
+	gcc -o battle_typing *.o -lcurses -pthread
 
 main_menu.o: main_menu.h main_menu.c
 	gcc -c -o main_menu.o main_menu.c
@@ -27,8 +25,8 @@ endless.o: single/endless.c single/endless.h
 single_gameover.o: single/single_gameover.c single/single_gameover.h
 	gcc -c -o single_gameover.o single/single_gameover.c
 
-#time_attack.o: single/time_attack.c single/time_attack.h
-#	gcc -c -o $@ single/time_attack.c
+time_attack.o: single/time_attack.c single/time_attack.h
+	gcc -c -o $@ single/time_attack.c
 
 clean:
 	rm *.o
