@@ -23,6 +23,7 @@
 struct Score{
 	int score;
 	char name[4];
+	int mode;
 };
 typedef struct multi_match{
 	int fd1, fd2;
@@ -40,8 +41,8 @@ void* multi_screen_communication(void*);
 void* wait_other(void*);
 
 void save_score(struct Score score);
-void receive_score(int);
-void send_score(int);
+int receive_score(int);
+void send_score(int, int);
 void* score_server(void*);
 
 int main(){
@@ -277,18 +278,22 @@ void* score_server(void* thread_data){
 			oops("accept");
 
 		printf("[score server] score receive start\n");
-		receive_score(sock_fd);
+		int mode = receive_score(sock_fd);
 
 		printf("[score server] score board send start\n");
-		send_score(sock_fd);
+		send_score(sock_fd, mode);
 	
 		close(sock_fd);
 		printf("[score server] socket close\n");
 	}
 }
 // sock_fd와 연결된 클라이언트에게 score_board를 보냄
-void send_score(int sock_fd){
-	FILE *fp = fopen("resource/score.txt", "r");
+void send_score(int sock_fd, int mode){
+	FILE *fp = NULL;
+	if (mode == 0)
+		fp = fopen("resource/score.txt", "r");
+	else
+		fp = fopen("resource/scrore2.txt", "r");
 	struct Score score;
 	int len_score_board = 0;
 
@@ -305,21 +310,29 @@ void send_score(int sock_fd){
 }
 
 // sock_fd와 연결된 클라이언트로부터 name과 score를 받아옴.
-void receive_score(int sock_fd){
+int receive_score(int sock_fd){
 	struct Score score;
 
+	read(sock_fd, &(score.mode), sizeof(int));
 	read(sock_fd, score.name, sizeof(char) * 4);
 	read(sock_fd, &(score.score), sizeof(int));
 	printf("%s %d\n", score.name,score.score);
 
 	save_score(score);
+
+	return score.mode;
 }
 // score를 파일에 저장함.
 void save_score(struct Score score){
-	FILE *fp = fopen("resource/score.txt", "r");
 	struct Score score_board[11] = {{0,""}};
 	int len_score_board = 0;
 	int flag_update = 0;
+	FILE *fp;
+	
+	if (score.mode == 0)
+		fp = fopen("resource/score.txt", "r");
+	else
+		fp = fopen("resource/score2.txt", "r");
 
 	// 파일로부터 점수를 읽어옴
 	// 정상적이라면 len_score_board는 10개 이하이다.
@@ -344,7 +357,10 @@ void save_score(struct Score score){
 	
 	// score_board가 변경되었으면, 파일에도 업데이트 해줌
 	if (flag_update == 1){
-		fp = fopen("resource/score.txt", "w");
+		if (score.mode == 0)
+			fp = fopen("resource/score.txt", "w");
+		else
+			fp = fopen("resource/score2.txt", "w");
 		fprintf(fp, "%d\n",len_score_board);
 		for(int i = 0; i < len_score_board; i++)
 			fprintf(fp, "%s %d\n",score_board[i].name, score_board[i].score);
