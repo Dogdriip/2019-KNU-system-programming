@@ -15,9 +15,6 @@
 #include "../util/string.h"
 
 // 윈도우 3개 관련 상수
-#define MY_LINES 41
-#define MY_COLS 181
-
 #define TYPING_WIN_HEIGHT 5
 #define TYPING_WIN_WIDTH (MY_COLS - (GAME_SCR_PADDING * 2))
 #define TYPING_WIN_Y (MY_LINES - (GAME_SCR_PADDING * 2))

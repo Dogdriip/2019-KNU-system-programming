@@ -343,6 +343,9 @@ void start_multi_game(int fd) {
 		mvwprintw(gameover_win, (LINES - 10) / 2, (COLS - 10 - strlen("Win")) / 2, "Win");
 	else
 		mvwprintw(gameover_win, (LINES - 10) / 2, (COLS - 10 - strlen("Lose")) / 2, "Lose");
+	wrefresh(gameover_win);
+	draw_title();
+	sleep(1);
 	mvwprintw(gameover_win, (LINES - 10) / 2 + 2, (COLS - 10 - strlen("Please Enter Key")) / 2, "Please Enter Key");
 	wrefresh(gameover_win);
 
