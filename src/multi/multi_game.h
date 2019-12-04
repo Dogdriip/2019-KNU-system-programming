@@ -12,6 +12,9 @@
 #include <stdlib.h>
 #include "../util/string.h"
 
+#define MULTI_WORD_DROP_C_INIT 400
+#define MULTI_NEW_WORD_C_INIT 600
+
 #define MULTI_GAME_SCR_PADDING 5
 
 // 타이핑 윈도우

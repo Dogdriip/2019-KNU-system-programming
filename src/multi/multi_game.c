@@ -51,6 +51,9 @@ void multi_prepare_windows() {
 
 	for(int i = 0; i < MULTI_GAME_WIN_WIDTH; i++)
 		screen_edge[i] = '*';
+	mvprintw(MULTI_GAME_WIN_Y + 1, MULTI_GAME_WIN_X + MULTI_GAME_WIN_WIDTH - 2 - strlen("Player"), "Player");
+	mvprintw(MULTI_OTHER_WIN_Y + 1, MULTI_OTHER_WIN_X + MULTI_OTHER_WIN_WIDTH - 2 - strlen("Other"), "Other");
+	refresh();
 	mvwprintw(game_win, 2, 0, "%s", screen_edge);
 	mvwprintw(other_win, 2, 0, "%s", screen_edge);
 	wrefresh(other_win);
@@ -74,6 +77,8 @@ void multi_update_game_win(node* header) {
     }
 
 	wrefresh(game_win);
+	mvprintw(MULTI_GAME_WIN_Y + 1, MULTI_GAME_WIN_X + MULTI_GAME_WIN_WIDTH - 2 - strlen("Player"), "Player");
+	refresh();
 }
 //////////////////////////////////////////////////////////////
 
@@ -113,6 +118,8 @@ void multi_gameover(){
 	write(multi_fd, &flag_multi_game, sizeof(int));
 	close(multi_fd);
 
+	remove("cache_screen.bin");
+	remove("cache_screen2.bin");
 }
 void multi_game_win(){
 	if (flag_multi_game == -1)
@@ -123,6 +130,9 @@ void multi_game_win(){
 	signal(SIGALRM, SIG_IGN);
 
 	close(multi_fd);
+	
+	remove("cache_screen.bin");
+	remove("cache_screen2.bin");
 }
 void multi_drop_word(node* header) {
     node* curr;
@@ -229,6 +239,9 @@ void* multi_communication(void* m){
 	mvwin(other_win, MULTI_OTHER_WIN_Y, MULTI_OTHER_WIN_X);
 	wrefresh(other_win);
 	fclose(fp_screen);
+
+	mvprintw(MULTI_OTHER_WIN_Y + 1, MULTI_OTHER_WIN_X + MULTI_OTHER_WIN_WIDTH - 2 - strlen("Other"), "Other");
+	refresh();
 }
 
 void multi_trigger() {
@@ -273,8 +286,8 @@ void multi_trigger() {
 
 void multi_init_timer() {
     elapsed_time = 0;
-    word_drop_c = WORD_DROP_C_INIT;
-    new_word_c = NEW_WORD_C_INIT;
+    word_drop_c = MULTI_WORD_DROP_C_INIT;
+    new_word_c = MULTI_NEW_WORD_C_INIT;
 	communication_c = MULTI_INIT_COMMUNICATION_C;
 
     multi_set_ticker(CLOCK_INTERVAL);
@@ -283,8 +296,7 @@ void multi_init_timer() {
 
 void multi_init_game() {
 	flag_multi_game = 1;
-    remain_life = LIFE_INIT;
-	remain_life = 1;
+    remain_life = 3;
 
     list_header = (node*)malloc(sizeof(*list_header));
     list_header->llink = list_header->rlink = list_header;
