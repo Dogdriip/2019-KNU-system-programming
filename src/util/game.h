@@ -9,10 +9,10 @@
 // 게임플레이 관련
 #define LIFE_INIT 5
 #define CLOCK_INTERVAL 100
-// #define WORD_DROP_C_INIT 1000
-#define WORD_DROP_C_INIT 100
-// #define NEW_WORD_C_INIT 2000
-#define NEW_WORD_C_INIT 100
+#define WORD_DROP_C_INIT 1000
+// #define WORD_DROP_C_INIT 100
+#define NEW_WORD_C_INIT 2000
+// #define NEW_WORD_C_INIT 100
 #define LEVEL_UP_C_INIT 5000
 
 #define TA_WORD_DROP_C_INIT 300
