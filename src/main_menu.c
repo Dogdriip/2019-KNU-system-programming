@@ -55,6 +55,8 @@ int init_program(){
 	noecho();
 	srand((long)time(NULL));
 	keypad(stdscr, TRUE);
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
 
 	if (string_init(0) == -1){ // 0이면 서버에서, 1이면 로컬에서
 		clear();

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <curses.h>
+#include <signal.h>
 #include <time.h>
 #include "single/single_menu.h"
 #include "multi/multi_menu.h"
