@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <signal.h>
 
 #define PORTNUM_STRING 8181
 #define PORTNUM_SCORE 8281
@@ -33,6 +34,7 @@ char string[MAX_STRING_LENGTH + 1][MAX_STRING_COUNT][MAX_STRING_LENGTH + 1];
 int string_count[MAX_STRING_LENGTH + 1];
 int sock_multi_id;
 
+pthread_t t1, t2, t3;
 
 void* string_server(void*);
 
@@ -45,15 +47,30 @@ int receive_score(int);
 void send_score(int, int);
 void* score_server(void*);
 
+void signal_handler();
+
 int main(){
-	pthread_t t1, t2, t3;
+	printf("서버 시작\n");
 
 	pthread_create(&t1, NULL, score_server, NULL); 
 	pthread_create(&t2, NULL, multi_server, NULL);
 	pthread_create(&t3, NULL, string_server, NULL);
+
+	signal(SIGINT, signal_handler);
+	signal(SIGQUIT, signal_handler);
+
 	pthread_join(t1, NULL);
 	pthread_join(t2, NULL);
 	pthread_join(t3, NULL);
+
+	printf("서버 종료\n");
+}
+
+void signal_handler(){
+	pthread_cancel(t1);
+	pthread_cancel(t2);
+	pthread_cancel(t3);
+	printf("스레드 종료 완료\n");
 }
 
 void* string_server(void* thread_data){
