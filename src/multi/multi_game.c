@@ -305,7 +305,7 @@ void multi_init_game() {
 /////////
 // 입력을 스레드로 빼는게 깔끔할 듯 
 
-void* input_func(void* thr_data){
+void* multi_input_func(void* thr_data){
 	char input_str[40];
 	int input_len = 0;
 	int i;
@@ -343,7 +343,7 @@ void start_multi_game(int fd) {
     multi_init_timer();
 
 	pthread_t thr_input;
-	pthread_create(&thr_input, NULL, input_func, NULL);
+	pthread_create(&thr_input, NULL, multi_input_func, NULL);
 
 	while(flag_multi_game == 1)
 		sleep(1);

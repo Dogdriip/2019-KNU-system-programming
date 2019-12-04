@@ -11,6 +11,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include "../util/game.h"
 #include "../util/string.h"
 

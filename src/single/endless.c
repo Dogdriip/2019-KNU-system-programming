@@ -90,41 +90,6 @@ int level_up_cnt;
 
 void gameover() {
     signal(SIGALRM, SIG_IGN);
-
-    wclear(game_win);
-    wclear(info_win);
-    wclear(typing_win);
-
-    wrefresh(game_win);
-    wrefresh(info_win);
-    wrefresh(typing_win);
-
-    // delwin(game_win);
-    // delwin(info_win);
-    // delwin(typing_win);
-    
-    gameover_win = newwin(GAMEOVER_WIN_HEIGHT, GAMEOVER_WIN_WIDTH, GAMEOVER_WIN_Y, GAMEOVER_WIN_X);
-    box(gameover_win, '*', '*');
-
-
-
-    char gameover_str[] = "GAME OVER";
-    wmove(gameover_win, GAMEOVER_WIN_Y + 5, (COLS - 10 - strlen(gameover_str)) / 2);
-    wprintw(gameover_win, gameover_str);
-
-    wmove(gameover_win, GAMEOVER_WIN_Y + 8, (COLS - 10 - strlen("SCORE :    ")) / 2);
-    wprintw(gameover_win, "SCORE : %3d", elapsed_time / 1000);
-
-    wrefresh(gameover_win);
-
-    sleep(1);
-	
-	mvwprintw(gameover_win, (LINES - 10) / 2 + 10, (COLS - 10 - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
-	wrefresh(gameover_win);
-
-	// while(getch() != '\n');
-
-    // 종료 조건: flag를 false로
     FLAG = 0;
 }
 
@@ -300,11 +265,28 @@ void init_game() {
 }
 //////////////////////////////////////////////////////////////
 
+void* input_func(void *thr_data){
+	char input_str[40];
+	int input_len = 0;
+	int i;
+
+	while(1){
+		wmove(typing_win, 2, 2);
+		wgetstr(typing_win, input_str);
+		input_len = strlen(input_str);
+	
+		// input 받았으면 공백으로 채우자
+		for (i = 2; i < input_len + 2; i++) {
+			wmove(typing_win, 2, i);
+			wprintw(typing_win, " ");
+		}
+
+		input_handler(list_header, input_str);
+	}
+}
 //////////////////////////////////////////////////////////////
 // main game logic
 int single_endless_game() {
-    char input_str[40];
-    int input_len = 0;
     int i;
 
     echo();
@@ -315,41 +297,43 @@ int single_endless_game() {
     init_game();
     init_timer();
 
-    // 시작하자마자 trigger 한번 실행?
-    // trigger();
+	pthread_t thr_input;
+	pthread_create(&thr_input, NULL, input_func, NULL);
 
-    while (FLAG) {
-        // input 받자
-        wmove(typing_win, 2, 2);
-        wgetstr(typing_win, input_str);
-        input_len = strlen(input_str);
+    while (FLAG) 
+		sleep(1);
 
-        // input 받았으면 공백으로 채우자
-        for (i = 2; i < input_len + 2; i++) {
-            wmove(typing_win, 2, i);
-            wprintw(typing_win, " ");
-        }
+	pthread_cancel(thr_input);
 
-        // 입력 받을때 curr_list iterate하는 함수에서 game_win refresh해 주는 거랑
-        // 새 단어 생길 때, word drop할 떄 말고는 game_win refresh 없지 않나?
-
-        input_handler(list_header, input_str);
-    }
-
-	wclear(gameover_win);
     wclear(game_win);
     wclear(info_win);
     wclear(typing_win);
 
-	wrefresh(gameover_win);
     wrefresh(game_win);
     wrefresh(info_win);
     wrefresh(typing_win);
 
-	delwin(gameover_win);
 	delwin(game_win);
 	delwin(typing_win);
 	delwin(info_win);
+
+    gameover_win = newwin(GAMEOVER_WIN_HEIGHT, GAMEOVER_WIN_WIDTH, GAMEOVER_WIN_Y, GAMEOVER_WIN_X);
+    box(gameover_win, '*', '*');
+
+    char gameover_str[] = "GAME OVER";
+    wmove(gameover_win, GAMEOVER_WIN_Y + 5, (COLS - 10 - strlen(gameover_str)) / 2);
+    wprintw(gameover_win, gameover_str);
+
+    wmove(gameover_win, GAMEOVER_WIN_Y + 8, (COLS - 10 - strlen("SCORE :    ")) / 2);
+    wprintw(gameover_win, "SCORE : %3d", elapsed_time / 1000);
+
+    wrefresh(gameover_win);
+
+    sleep(1);
+	
+	mvwprintw(gameover_win, (LINES - 10) / 2 + 10, (COLS - 10 - strlen("Please Enter Key...")) / 2, "Please Enter Key...");
+	wrefresh(gameover_win);
+	while(getch() != '\n');
 
 	return elapsed_time / 1000;
 }
